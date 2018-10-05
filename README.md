@@ -1,3 +1,5 @@
 ## Blockchain for Open Threat Intelligence
 
-ㅎㅎ
+This is for me
+
+i hate blockchain but i'm doin it 
