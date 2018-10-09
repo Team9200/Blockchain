@@ -4,6 +4,7 @@ const Blockchain = require('./Blockchain')
 const bitcoin = new Blockchain();
 
 console.log(bitcoin);
+
 /*
 const previousBlockHash = "abasdsad";
 const currentBlockData = [
@@ -25,5 +26,5 @@ const currentBlockData = [
 ];
 
 //console.log(bitcoin.proofOfWork(previousBlockHash,currentBlockData));
-console.log(bitcoin.hashBlock(previousBlockHash, currentBlockData, 127885));
+console.log(bitcoin);
 */

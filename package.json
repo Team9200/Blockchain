@@ -4,12 +4,16 @@
   "description": "This is for me",
   "main": "index.js",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "sha256": "^0.2.0"
+    "nodemon": "^1.18.4",
+    "sha256": "^0.2.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --watch dev -e js dev/api.js"
   },
   "repository": {
     "type": "git",
