@@ -18,6 +18,7 @@ version info
 */
 
 const sha256 = require('sha256');
+const currentNodeUrl = process.argv[3];
 
 /*
   function : Blockchain 객체
@@ -29,6 +30,8 @@ function Blockchain() {
   this.chain = [];                    // block을 담는 배열
   this.pendingTransactions = [];      // 트랜잭션을 담는 배열
   this.createNewBlock(100, '0', '0'); // genesis block 생성
+  this.currentNodeUrl = currentNodeUrl;
+  this.networkNodes = [];
 }
 
 /*
