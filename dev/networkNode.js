@@ -19,13 +19,13 @@ app.get('/blockchain', function(req, res) {
 
 // 웹 브라우저에 post 방식으로 /transaction 주소를 입력했을 때 실행
 app.post('/transaction', function(req, res) {
-  const blockIndex = bitcoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+  const blockIndex = bitcoin.addNewTransaction(req.body.transaction);
   res.send({note: `트랜잭션은 ${blockIndex} 블락안으로 들어갈 예정입니다.`})
 })
 
 app.post('/intelligence', function(req,res) {
-  const blockIndex = bitcoin.createNewIntelligence(req.body.analyzer, req.body.created, req.body.tags, req.body.goal, req.body.action, req.body.description);
-  res.send({note: `인텔리전스는 ${blockIndex} 블락안으로 들어갈 예정입니다.`})
+  const blockIndex = bitcoin.addNewMalware(req.body.malware);
+  res.send({note: `malwares 정보는 ${blockIndex} 블락안으로 들어갈 예정입니다.`})
 })
 
 app.get('/mine', function(req, res){
@@ -33,8 +33,8 @@ app.get('/mine', function(req, res){
   const previousBlockHash = lastBlock['hash'];
 
   const currentBlockData = {
-    transaction:bitcoin.pendingTransactions,
-    intelligence:bitcoin.pendingIntelligence,
+    transaction:bitcoin.transactionList,
+    malware:bitcoin.malwaresList,
     index:lastBlock['index']+1
   };
 
@@ -42,7 +42,11 @@ app.get('/mine', function(req, res){
   const blockHash = bitcoin.hashBlock(previousBlockHash,currentBlockData,nonce);
 
   //채굴에 대한 보상
-  bitcoin.createNewTransaction("deal", 10, "bosang0000", nodeAddress);
+  var bosang = {};
+  bosang["amount"] = 10;
+  bosang["sender"] = "bosang";
+  bosang["recipient"] = nodeAddress;
+  bitcoin.addNewTransaction(bosang);
   const newBlock = bitcoin.createNewBlock(nonce, previousBlockHash, blockHash);
 
   res.json({
