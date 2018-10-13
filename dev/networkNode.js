@@ -23,12 +23,18 @@ app.post('/transaction', function(req, res) {
   res.send({note: `트랜잭션은 ${blockIndex} 블락안으로 들어갈 예정입니다.`})
 })
 
+app.post('/intelligence', function(req,res) {
+  const blockIndex = bitcoin.createNewIntelligence(req.body.analyzer, req.body.created, req.body.tags, req.body.goal, req.body.action, req.body.description);
+  res.send({note: `인텔리전스는 ${blockIndex} 블락안으로 들어갈 예정입니다.`})
+})
+
 app.get('/mine', function(req, res){
   const lastBlock = bitcoin.getLastBlock();
   const previousBlockHash = lastBlock['hash'];
 
   const currentBlockData = {
     transaction:bitcoin.pendingTransactions,
+    intelligence:bitcoin.pendingIntelligence,
     index:lastBlock['index']+1
   };
 
@@ -36,8 +42,8 @@ app.get('/mine', function(req, res){
   const blockHash = bitcoin.hashBlock(previousBlockHash,currentBlockData,nonce);
 
   //채굴에 대한 보상
-  bitcoin.createNewTransaction(10, "bosang0000",nodeAddress);
-  const newBlock = bitcoin.createNewBlock(nonce,previousBlockHash,blockHash);
+  bitcoin.createNewTransaction("deal", 10, "bosang0000", nodeAddress);
+  const newBlock = bitcoin.createNewBlock(nonce, previousBlockHash, blockHash);
 
   res.json({
     note: "새로운 블락이 성공적으로 만들어 졌습니다.",
