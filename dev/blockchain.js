@@ -1,8 +1,8 @@
 
 /*******************************************************************************
 Autor : rach
-date : 18. 10. 13
-version : v0.85
+date : 18. 10. 14
+version : v0.86
 explanaion :
 
 as is
@@ -26,10 +26,10 @@ const currentNodeUrl = process.argv[3];
 *******************************************************************************/
 
 function Blockchain() {
-  this.chain = [];                    // block을 담는 리스트
-  this.pendingTransactions = [];      // 트랜잭션을 담는 리스트
-  this.pendingIntelligence = [];      // 위협정보를 담는 리스트
-  this.createNewBlock(100, '0', '0'); // genesis block 생성
+  this.chain = [];                          // block을 담는 리스트
+  this.transactionList = [];                // 트랜잭션을 담는 리스트
+  this.malwaresList = [];                   // 악성코드정보를 담는 리스트
+  this.createNewBlock(100, '0', '0');       // genesis block 생성
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
 }
@@ -47,15 +47,15 @@ Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash,hash) {
   const newBlock = {
     index: this.chain.length + 1,
     timestamp: Date.now(),
-    pendingTransactions: this.pendingTransactions,
-    pendingIntelligence: this.pendingIntelligence,
+    transactionList: this.transactionList,
+    malwaresList: this.malwaresList,
     nonce:nonce,
     hash:hash,
     previousBlockHash:previousBlockHash
   };
 
-this.pendingTransactions = [];                // 다음 블록을 위한 작업
-this.pendingIntelligence = [];
+this.transactionList = [];                // 다음 블록을 위한 작업
+this.malwaresList = [];
 this.chain.push(newBlock);
 
 return newBlock;
@@ -73,41 +73,48 @@ Blockchain.prototype.getLastBlock = function() {
 }
 
 /*******************************************************************************
-  function : createNewTransaction
+  function : addNewTransaction
   explanaion : 새로운 트랜잭션을 생성하는 함수
-  input : transaction 정보
+  input : transaction 정보 json format
   output : 생성된 트랜잭션을 담고 있는 블록의 인덱스 (마지막 블록)
 ********************************************************************************/
 
-Blockchain.prototype.createNewTransaction = function(amount, sender, recipient) {
+Blockchain.prototype.addNewTransaction = function(transaction) {
   const newTransaction = {
-    amount: amount,
-    sender: sender,
-    recipient: recipient
+    amount: transaction["amount"],
+    sender: transaction["sender"],
+    recipient: transaction["recipient"]
   }
 
-  this.pendingTransactions.push(newTransaction);
+  this.transactionList.push(newTransaction);
   return this.getLastBlock()['index'] + 1;
 }
 
 /*******************************************************************************
-  function : createNewIntelligence
+  function : addNewMalware
   explanaion : 새로운 인텔리전스 정보를 생성하는 함수
-  input : intelligence 정보
+  input : malware 정보(json format)
   output : 생성된 트랜잭션을 담고 있는 블록의 인덱스 (마지막 블록)
 ********************************************************************************/
 
-Blockchain.prototype.createNewIntelligence = function (analyzer, created, tags, goal, action, description) {
-  const newIntelligence = {
-    analyzer: analyzer,
-    created: created,
-    tags: tags,
-    goal: goal,
-    action: action,
-    description: description
+Blockchain.prototype.addNewMalware = function (malware) {
+  const newMalware = {
+    analyzer: malware["analyzer"],
+    md5: malware["md5"],
+    sha1: malware["sha-1"],
+    sha256: malware["sha256"],
+    ssdeep : malware["ssdeep"],
+    imphash: malware["imphash"],
+    filetype: malware["filetype"],
+    tag_name_etc: malware["tag_name_etc"],
+    filesize : malware["filesize"],
+    behavior : malware["behavior"],
+    date : malware["date"],
+    first_seen: malware["first_seen"],
+    taglist: malware["taglist"],
   }
 
-  this.pendingIntelligence.push(newIntelligence);
+  this.malwaresList.push(newMalware);
   return this.getLastBlock()['index'] + 1;
 };
 
