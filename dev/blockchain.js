@@ -1,20 +1,19 @@
 
 /*******************************************************************************
 Autor : rach
-date : 18. 10. 10
-version : v0.8
+date : 18. 10. 13
+version : v0.85
 explanaion :
 
 as is
-- 구체적인 트랜잭션 구조체나 블록의 구조체가 아니라 틀만 잡혀 있는 상태임
-- 현재 express로 웹을 이용해서 로컬상에서 블록 생성 -> 트랜잭션 생성 -> 마이닝 & 결과 확인 까지 가능함
+- 현재 express로 웹을 이용해서 로컬상에서 블록 생성 -> 트랜잭션/인텔리전스 생성 -> 마이닝 & 결과 확인 까지 가능함
 
 to be
-- 목요일까지 로컬이 아니라 다른 PC 에서도 마이닝과 체인 조회가 가능하게 구현할 예정
-- 지금까지 얘기된 내용만으로라도 트랜잭션을 추가할 예정임
+- 참가 노드간 정보 공유 with p2p
 
 version info
 - 실질적으로 블록을 다른 컴퓨터에서도 조회할 수 있는 시점에 verson 1 로 업데이트 할 예정
+
 ********************************************************************************/
 
 const sha256 = require('sha256');
@@ -77,7 +76,7 @@ Blockchain.prototype.getLastBlock = function() {
   function : createNewTransaction
   explanaion : 새로운 트랜잭션을 생성하는 함수
   input : transaction 정보
-  output : 생성된 트랜잭션을 담고 있는 블록 (마지막 블록)
+  output : 생성된 트랜잭션을 담고 있는 블록의 인덱스 (마지막 블록)
 ********************************************************************************/
 
 Blockchain.prototype.createNewTransaction = function(amount, sender, recipient) {
@@ -90,6 +89,13 @@ Blockchain.prototype.createNewTransaction = function(amount, sender, recipient) 
   this.pendingTransactions.push(newTransaction);
   return this.getLastBlock()['index'] + 1;
 }
+
+/*******************************************************************************
+  function : createNewIntelligence
+  explanaion : 새로운 인텔리전스 정보를 생성하는 함수
+  input : intelligence 정보
+  output : 생성된 트랜잭션을 담고 있는 블록의 인덱스 (마지막 블록)
+********************************************************************************/
 
 Blockchain.prototype.createNewIntelligence = function (analyzer, created, tags, goal, action, description) {
   const newIntelligence = {
