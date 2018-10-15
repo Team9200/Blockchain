@@ -2,4 +2,4 @@
 
 This is for team 9200
 
-i hate blockchain but i'm doin it
+i like blockchain and i'm doin it :)
