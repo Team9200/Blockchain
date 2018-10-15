@@ -171,7 +171,11 @@ Blockchain.prototype.searchInChain = function (key, value) {
       result = result.concat(temp);
     }
   }
-  return temp;
+
+  if (result.length==0)
+    return false;
+  else
+    return result;
 };
 
 module.exports = Blockchain;
