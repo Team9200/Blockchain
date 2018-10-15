@@ -11,8 +11,7 @@ explanaion :
 
 ********************************************************************************/
 
-const sha256 = require('sha256');
-const currentNodeUrl = process.argv[3];
+const currentNodeUrl = process.argv[3]; // for test
 
 /*******************************************************************************
   function : Blockchain 객체
@@ -27,15 +26,6 @@ function Blockchain() {
   this.createNewBlock(100, '0', '0');       // genesis block 생성
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
-}
-
-function Block() {
-  this.index = 0;
-  this.timestamp = Date.now();
-  this.transactionList = [];
-  this.malwareList = [];
-  this.nonce = 0;
-  this.previousBlockHash ="";
 }
 
 /*******************************************************************************
@@ -58,11 +48,11 @@ Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash,hash) {
     previousBlockHash:previousBlockHash
   };
 
-this.transactionList = [];                // 다음 블록을 위한 작업
-this.malwaresList = [];
-this.chain.push(newBlock);
+  this.transactionList = [];                // 다음 블록을 위한 작업
+  this.malwaresList = [];
+  this.chain.push(newBlock);
 
-return newBlock;
+  return newBlock;
 }
 
 /*******************************************************************************
@@ -121,5 +111,12 @@ Blockchain.prototype.addNewMalware = function (malware) {
   this.malwaresList.push(newMalware);
   return this.getLastBlock()['index'] + 1;
 };
+
+/*******************************************************************************
+  function : serarchBy
+  explanaion : 블록체인 내부 정보를 조회하는 메소드
+  input : search category, keyword
+  output : 해당하는 malware info in malwaresList
+********************************************************************************/
 
 module.exports = Blockchain;
