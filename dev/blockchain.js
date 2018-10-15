@@ -29,6 +29,15 @@ function Blockchain() {
   this.networkNodes = [];
 }
 
+function Block() {
+  this.index = 0;
+  this.timestamp = Date.now();
+  this.transactionList = [];
+  this.malwareList = [];
+  this.nonce = 0;
+  this.previousBlockHash ="";
+}
+
 /*******************************************************************************
    function : createNewBlock(nonce, previousBlockHash, hash)
    explanaion : 이전 블록의 해쉬값을 전달하고 새로운 블록을 생성하는 함수
