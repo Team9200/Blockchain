@@ -1,5 +1,8 @@
-
+const sha256 = require('sha256');
 var Blockchain = require('./blockchain');
+
+var uuid = require('uuid/v1');                    //import for test
+var nodeAddress = uuid().split('-').join('');     //import for test
 
 /*******************************************************************************
   function : hashBlock
@@ -26,9 +29,7 @@ Blockchain.prototype.hashBlock = function(previousBlockHash, currentBlockData, n
          hashBlock 과 함께
 *******************************************************************************/
 
-function isBlockValid(block) {
-
-};
+function isBlockValid(block) {};
 
 /*******************************************************************************
   function: isChainValid
@@ -37,9 +38,7 @@ function isBlockValid(block) {
   output: true, false
 *******************************************************************************/
 
-blockchain.prototype.isChainValid = function () {
-
-};
+Blockchain.prototype.isChainValid = function () {};
 
 /*******************************************************************************
   function : proofOfWork
@@ -59,5 +58,35 @@ Blockchain.prototype.proofOfWork = function(previousBlockHash, currentBlockData)
   }
   return nonce;
 }
+
+/*******************************************************************************
+  function : miningBlock
+  explanaion : 현재 블록을 mining
+  input : 보상과 난이도
+  return : lastblock
+  *******************************************************************************/
+
+Blockchain.prototype.miningBlock = function () {
+  const lastBlock = this.getLastBlock();
+  const previousBlockHash = lastBlock.hash;
+
+  const currentBlockData = {
+    transaction:this.transactionList,
+    malware:this.malwaresList,
+    index:lastBlock['index']+1
+  };
+
+  const nonce = this.proofOfWork(previousBlockHash,currentBlockData);
+  const blockHash = this.hashBlock(previousBlockHash,currentBlockData,nonce);
+
+  //채굴에 대한 보상
+  var bosang = {};
+  bosang["amount"] = 10;
+  bosang["sender"] = "bosang";
+  bosang["recipient"] = nodeAddress;
+  this.addNewTransaction(bosang);
+  const newBlock = this.createNewBlock(nonce, previousBlockHash, blockHash);
+  return newBlock;
+};
 
 module.exports = Blockchain;
