@@ -37,8 +37,8 @@ function Block(index, timestamp, transactionList, malwaresList, nonce, hash, pre
 
 function Blockchain() {
   this.chain = [];                          // block을 담는 리스트
-  this.transactionList = [];                // 트랜잭션을 담는 리스트
-  this.malwaresList = [];                   // 악성코드정보를 담는 리스트
+  this.pendingTransactions = [];                // 트랜잭션을 담는 리스트
+  this.pendingMalwares = [];                   // 악성코드정보를 담는 리스트
   this.createNewBlock(100, '0', '0');       // genesis block 생성
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
@@ -57,15 +57,15 @@ Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash, hash) {
   const newBlock = new Block(
     this.chain.length + 1,
     Date.now(),
-    this.transactionList,
-    this.malwaresList,
+    this.pendingTransactions,
+    this.pendingMalwares,
     nonce,
     hash,
     previousBlockHash
   )
 
-  this.transactionList = [];                // 다음 블록을 위한 작업
-  this.malwaresList = [];
+  this.pendingTransactions = [];                // 다음 블록을 위한 작업
+  this.pendingMalwares = [];
   this.chain.push(newBlock);
 
   return newBlock;
@@ -96,7 +96,7 @@ Blockchain.prototype.addNewTransaction = function(transaction) {
     recipient: transaction["recipient"]
   }
 
-  this.transactionList.push(newTransaction);
+  this.pendingTransactions.push(newTransaction);
   return this.getLastBlock()['index'] + 1;
 }
 
@@ -124,15 +124,54 @@ Blockchain.prototype.addNewMalware = function (malware) {
     taglist: malware["taglist"],
   }
 
-  this.malwaresList.push(newMalware);
+  this.pendingMalwares.push(newMalware);
   return this.getLastBlock()['index'] + 1;
 };
 
 /*******************************************************************************
-  function : serarchBy
-  explanaion : 블록체인 내부 정보를 조회하는 메소드
-  input : search category, keyword
-  output : 해당하는 malware info in malwaresList
+  function : searchInBlock
+  explanaion : 블록 내부 정보를 조회하는 메소드
+  input : key, value
+  output : 해당하는 malware의 모든 정보를 반환
 ********************************************************************************/
+
+Block.prototype.searchInBlock = function (key, value) {
+  var result = [];
+  var cnt = this.malwaresList.length;
+
+  if (cnt == 0)
+    return false;
+
+  for (var i=0; i<cnt; ++i) {
+    if(this.malwaresList[i][key] == value)  {
+        result.push(this.malwaresList[i]);
+    }
+  }
+  if (result.length == 0) {
+    return false;
+  }
+  else {
+    return result;
+  }
+}
+
+/*******************************************************************************
+  function: searchInChain
+  explanaion: 체인안에서 모든 블록을 순회하며 정보를 탐색하는 메소드
+  input: key, value
+  output : 해당하는 malware의 모든 정보를 반환
+*******************************************************************************/
+
+Blockchain.prototype.searchInChain = function (key, value) {
+  var result = [];
+  var temp = [];
+  for (var i=0 ; i<this.chain.length; ++i) {
+    temp = this.chain[i].searchInBlock(key,value);
+    if(temp != false) {
+      result = result.concat(temp);
+    }
+  }
+  return temp;
+};
 
 module.exports = Blockchain;
