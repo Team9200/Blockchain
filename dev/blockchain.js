@@ -14,6 +14,22 @@ explanaion :
 const currentNodeUrl = process.argv[3]; // for test
 
 /*******************************************************************************
+  function : Block 객체
+  explanaion : 블록체인 안에 들어갈 block을 객체화 함
+
+*******************************************************************************/
+
+function Block(index, timestamp, transactionList, malwaresList, nonce, hash, previousBlockHash) {
+  this.index = index;
+  this.timestamp = timestamp;
+  this.transactionList = transactionList;
+  this.malwaresList = malwaresList;
+  this.nonce = nonce;
+  this.hash = hash;
+  this.previousBlockHash = previousBlockHash;
+}
+
+/*******************************************************************************
   function : Blockchain 객체
   explanaion : 전체 블록체인의 정보를 구현한 객체 (ex 비트코인)
                시스템 내에서 하나만을 생성하면 될 것
@@ -37,16 +53,16 @@ function Blockchain() {
   return : 결과로 생성된 블록 (newBlock)
 *******************************************************************************/
 
-Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash,hash) {
-  const newBlock = {
-    index: this.chain.length + 1,
-    timestamp: Date.now(),
-    transactionList: this.transactionList,
-    malwaresList: this.malwaresList,
-    nonce:nonce,
-    hash:hash,
-    previousBlockHash:previousBlockHash
-  };
+Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash, hash) {
+  const newBlock = new Block(
+    this.chain.length + 1,
+    Date.now(),
+    this.transactionList,
+    this.malwaresList,
+    nonce,
+    hash,
+    previousBlockHash
+  )
 
   this.transactionList = [];                // 다음 블록을 위한 작업
   this.malwaresList = [];
