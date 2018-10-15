@@ -2,7 +2,7 @@ var rp = require('request-promise');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var Blockchain = require('./blockchain');
+var Blockchain = require('./mine');
 var bitcoin = new Blockchain();
 var uuid = require('uuid/v1');
 var nodeAddress = uuid().split('-').join('');
@@ -29,26 +29,7 @@ app.post('/intelligence', function(req,res) {
 })
 
 app.get('/mine', function(req, res){
-  const lastBlock = bitcoin.getLastBlock();
-  const previousBlockHash = lastBlock['hash'];
-
-  const currentBlockData = {
-    transaction:bitcoin.transactionList,
-    malware:bitcoin.malwaresList,
-    index:lastBlock['index']+1
-  };
-
-  const nonce = bitcoin.proofOfWork(previousBlockHash,currentBlockData);
-  const blockHash = bitcoin.hashBlock(previousBlockHash,currentBlockData,nonce);
-
-  //채굴에 대한 보상
-  var bosang = {};
-  bosang["amount"] = 10;
-  bosang["sender"] = "bosang";
-  bosang["recipient"] = nodeAddress;
-  bitcoin.addNewTransaction(bosang);
-  const newBlock = bitcoin.createNewBlock(nonce, previousBlockHash, blockHash);
-
+  const newBlock = bitcoin.miningBlock();
   res.json({
     note: "새로운 블락이 성공적으로 만들어 졌습니다.",
     newBlock: newBlock
@@ -107,6 +88,13 @@ app.post('/register-node',function(req,res){
 
 app.post('/register-nodes-bulk',function(req,res){
 
+})
+
+app.get('/search', function(req, res){
+  const result = bitcoin.searchBy("sha256","00657A02ABA42D7E31836B5B226F9E6E2D3080482710F9E6B89849E13C70D8C5");
+  res.json({
+    result: result
+  })
 })
 
 app.listen(port, function() {
