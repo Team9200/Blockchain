@@ -36,10 +36,10 @@ function Block(index, timestamp, transactionList, malwaresList, nonce, hash, pre
 *******************************************************************************/
 
 function Blockchain() {
-  this.chain = [];                          // block을 담는 리스트
-  this.pendingTransactions = [];                // 트랜잭션을 담는 리스트
-  this.pendingMalwares = [];                   // 악성코드정보를 담는 리스트
-  this.createNewBlock(100, '0', '0');       // genesis block 생성
+  this.chain = [];                           // block을 담는 리스트
+  this.pendingTransactions = [];             // 트랜잭션을 담는 리스트
+  this.pendingMalwares = [];                 // 악성코드정보를 담는 리스트
+  this.createNewBlock(100, '0', '0');        // genesis block 생성
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
 }
@@ -111,7 +111,7 @@ Blockchain.prototype.addNewMalware = function (malware) {
   const newMalware = {
     analyzer: malware["analyzer"],
     md5: malware["md5"],
-    sha1: malware["sha-1"],
+    sha1: malware["sha1"],
     sha256: malware["sha256"],
     ssdeep : malware["ssdeep"],
     imphash: malware["imphash"],
