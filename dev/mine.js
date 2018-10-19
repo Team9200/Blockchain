@@ -82,7 +82,7 @@ Blockchain.prototype.miningBlock = function () {
   //채굴에 대한 보상
   var bosang = {};
   bosang["amount"] = 10;
-  bosang["sender"] = "bosang";
+  bosang["sender"] = "award";
   bosang["recipient"] = nodeAddress;
   this.addNewTransaction(bosang);
   const newBlock = this.createNewBlock(nonce, previousBlockHash, blockHash);
