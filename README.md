@@ -14,4 +14,5 @@ I like blockchain and i'm doin it :)
 - more specific malwares information, transaction
 - block validation check function
 - transaction validation check function
+- modularization need to be more specific 
 - more and more .. 
