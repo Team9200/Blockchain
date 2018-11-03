@@ -22,6 +22,9 @@ Developing DPoS based Open Threat Intelligence
 ## tools to be done
 - public key sign, validation module
 - wrtieChain need to be fixed (appending should be possible)
+- lastBlock sending function
+- lastBlock appending function
+-
 
 ## additional needs
 - wallet
@@ -39,4 +42,4 @@ Developing DPoS based Open Threat Intelligence
 
 - malwaresInfo 의 구조체를 더 명확하게 할 필요가 있음 (재정의 할 필요 있음)
 
-- nodeURL 을 블록체인이 담고 있어야하는가? // 마이너들을 알 필요가 있는가?? 
+- nodeURL 을 블록체인이 담고 있어야하는가? // 마이너들을 알 필요가 있는가??
