@@ -13,6 +13,7 @@ Developing DPoS based Open Threat Intelligence
 # consensus algorithm (☆☆☆☆☆)
 - more specific malwares information, transaction definition
 - transaction validation check function
+<<<<<<< HEAD
     - transaction search method
 - block validation check function
 - chain validation check function
@@ -25,3 +26,7 @@ Developing DPoS based Open Threat Intelligence
 # additional needs
 - wallet
 - voting
+=======
+- modularization need to be more specific 
+- more and more .. 
+>>>>>>> 5a672cd82d6c8f8a6a0f90f95c11ffded2afa7f5
