@@ -1,3 +1,15 @@
+
+/*******************************************************************************
+filename : networkNode.js
+Autor : rach
+date : 18. 11. 03
+version : v1.0
+explanaion :
+  - 로컬에서 구현한 결과물을 테스트 할 수 있도록 하는 파일
+  - 실제 구현상에 들어가야하는 부분은 아님 !
+********************************************************************************/
+
+
 var rp = require('request-promise');
 var express = require('express');
 var app = express();
