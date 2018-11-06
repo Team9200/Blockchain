@@ -24,7 +24,8 @@ Developing DPoS based Open Threat Intelligence
 - wrtieChain need to be fixed (appending should be possible)
 - lastBlock sending function
 - lastBlock appending function
--
+- 순서 정하는 알고리즘 
+- 랜덤한 숫자 하나씩 보내기
 
 ## additional needs
 - wallet
