@@ -207,6 +207,8 @@ Blockchain.prototype.searchInChain = function (key, value) {
 Blockchain.prototype.findAddressUTXO= function (p_key){
   var UTXO_list = [];
   
+  console.log("p_key = ", p_key);
+
   //전체 블록 길이만큼 탐색
   for(var i = 0; i < this.chain.length; i ++){
 
@@ -220,7 +222,7 @@ Blockchain.prototype.findAddressUTXO= function (p_key){
       continue;
 
     else{
-      // 블록의 트랜잭션 리스트의 길이가 0이 아니면 해당 트랜잭션 길이만큼 반복문 실행
+      // 블록의 트랜잭션 리스트의 길이가 0이 아니면 해당 트랜잭션 길이만큼 블록의 트랜잭션 길이만큼 반복문 실행
       for(j = 0; j < cnt; j++){
         var n_vout = this.chain[i].transactionList[j]["o_ctr"];
         console.log("tx_info",this.chain[i].transactionList[j]);
@@ -229,7 +231,8 @@ Blockchain.prototype.findAddressUTXO= function (p_key){
         
         // 출력 수(o_ctr)만큼 출력(vout)을 돌면서 pubkey를 비교함
         for(jj = 0; jj < n_vout; jj++){
-          if(this.chain[i].transactionList[jj]["vout"]["pub_key"]==p_key){
+          console.log("this transaction's pub_key = ",this.chain[i].transactionList[j]["vout"][jj]["pub_key"])
+          if(this.chain[i].transactionList[j]["vout"][jj]["pub_key"]==p_key){
             var t_tx_id = this.chain[i].transactionList[jj]["tx_id"];
             console.log("find transaction, check it's UTXO...: ",t_tx_id);
             find_Flag = 0; // 찾으면 1로 바꿔서 빠져나감 
