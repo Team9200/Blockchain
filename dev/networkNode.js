@@ -103,7 +103,14 @@ app.post('/register-nodes-bulk',function(req,res){
 })
 
 app.get('/search', function(req, res){
-  const result = bitcoin.searchBy("sha256","00657A02ABA42D7E31836B5B226F9E6E2D3080482710F9E6B89849E13C70D8C5");
+  const result = bitcoin.searchInChain("version","0.1");
+  res.json({
+    result: result
+  })
+})
+
+app.get('/search2', function(req, res){
+  const result = bitcoin.findAddressUTXO("012344");
   res.json({
     result: result
   })
