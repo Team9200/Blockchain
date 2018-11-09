@@ -9,7 +9,6 @@ explanaion :
   - 실제 구현상에 들어가야하는 부분은 아님 !
 ********************************************************************************/
 
-
 var rp = require('request-promise');
 var express = require('express');
 var app = express();
