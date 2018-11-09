@@ -1,21 +1,13 @@
-const { randomBytes } = require('crypto')
 const secp256k1 = require('secp256k1')
+const bs58check = require('bs58check');
 
-// generate message to sign
-const msg = randomBytes(32)
+function signTransaction(transaction, address) {
+  let pubKey = bs58check.decode(address);
+  let msg = Buffer.from(transaction[tx_id].slice(0,32));
+  let sign = secp256k1.sign(msg,privKeyBuffer);
+  return sign.signature;
+}
 
-// generate privKey
-let privKey
-do {
-  privKey = randomBytes(32)
-} while (!secp256k1.privateKeyVerify(privKey))
-
-// get the public key in a compressed format
-const pubKey = secp256k1.publicKeyCreate(privKey)
-
-// sign the message
-const sigObj = secp256k1.sign(msg, privKey)
-
-// verify the signature
-console.log(secp256k1.verify(msg, sigObj.signature, pubKey))
-// => true
+function verifySign(msg, signature, pubKey) {
+  return secp256k1.verify(msg, signature, pubKey);
+}
