@@ -1,8 +1,8 @@
 const sha256 = require('sha256');
-var Blockchain = require('./blockchain');
+const secp256k1 = require('secp256k1')
+const bs58check = require('bs58check');
 
-var uuid = require('uuid/v1');                    //import for test
-var nodeAddress = uuid().split('-').join('');     //import for test
+var Blockchain = require('./blockchain');
 
 /*******************************************************************************
   function : hashBlock
@@ -17,6 +17,19 @@ Blockchain.prototype.hashBlock = function(previousBlockHash, currentBlockData, n
   const dataAsString = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
   const hash = sha256(dataAsString);
   return hash
+}
+
+/*******************************************************************************
+  function: verifyTransaction
+  explanaion: 트랜잭션의 유효성을 판단하는 함수
+  input : 유효성을 확인하고자 하는 트랜잭션
+  output: true, false
+*******************************************************************************/
+
+function verifyTransaction(transaction) {
+  const utxo = searchInput();
+  if (function searchInput(){} == false) return false;
+  if
 }
 
 /*******************************************************************************
