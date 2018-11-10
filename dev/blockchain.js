@@ -92,12 +92,22 @@ Blockchain.prototype.getLastBlock = function() {
 
 Blockchain.prototype.addNewTransaction = function (transaction) {
   const newtransaction = {
-    tx_id: transaction["tx_id"],
+    txid: sha256(JSON.stringify(transaction)),
     version: transaction["version"],
-    input_cnt: transaction["input_cnt"],
-    vin: transaction["vin"],
-    output_cnt : transaction["output_cnt"],
-    vout: transaction["vout"],
+
+    inputCnt: transaction["inputCnt"],
+    vin: {
+      txid: transaction["vin"]["txid"],
+      index: transaction["vin"]["index"],
+      sig: transaction["vin"]["sig"],
+    },
+
+    outputCnt : transaction["outputCnt"],
+    vout: {
+      value: transaction["vout"]["value"],
+      index: transaction["vout"]["index"],
+      publicKey: transaction["vout"]["publicKey"]
+    }
   }
   this.pendingTransactions.push(newtransaction);
   return this.getLastBlock()['index'] + 1;
