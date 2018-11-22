@@ -15,6 +15,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var Blockchain = require('./mine');
 var bitcoin = new Blockchain();
+var search = require("./search");
 var uuid = require('uuid/v1');
 var nodeAddress = uuid().split('-').join('');
 var port = process.argv[2];
@@ -118,3 +119,27 @@ app.get('/search2', function(req, res){
 app.listen(port, function() {
   console.log(`listening on port ${port}...`);
 })
+
+app.get('/search3', function(req, res){
+  const result = bitcoin.findAllUTXOs();
+  res.json({
+    result: result
+  })
+})
+
+app.get('/search4', function(req, res){
+  const result = bitcoin.findMyUTXOs("012344");
+  res.json({
+    result: result
+  })
+})
+
+app.get('/payment', function(req, res){
+  const result = bitcoin.MakePayment(15, "010101","test_send_priv","012344",0.1);
+  res.json({
+    result: result
+  })
+})
+
+
+module.exports = Blockchain;
