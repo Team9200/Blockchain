@@ -10,7 +10,7 @@ explanaion :
 ********************************************************************************/
 
 var fs = require('fs');
-var Blockchain = require('./mine');
+var Blockchain = require('../mine/mine');
 var marlist = [];
 
 Blockchain.prototype.Blockchain = function (input) {

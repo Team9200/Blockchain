@@ -1,5 +1,5 @@
 const sha256 = require('sha256');
-var Blockchain = require('./search') // need exports
+var Blockchain = require('../search') // need exports
 
 /*******************************************************************************
   function: sumVoutValue
@@ -61,7 +61,7 @@ function findTransaction(utxopool, txid) {
 
 /*******************************************************************************
   function: verifyTxSig
-  explanaion: transaction의 서명값을 검증하는 함수 
+  explanaion: transaction의 서명값을 검증하는 함수
   input : transaction의 서명을
   output:
 *******************************************************************************/

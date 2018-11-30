@@ -2,7 +2,7 @@ const sha256 = require('sha256');
 const secp256k1 = require('secp256k1')
 const bs58check = require('bs58check');
 
-var Blockchain = require('./blockchain');
+var Blockchain = require('../blockchain');
 
 /*******************************************************************************
   function : hashBlock

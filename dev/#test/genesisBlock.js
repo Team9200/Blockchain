@@ -1,3 +1,4 @@
+
 /*******************************************************************************
 filename : genesisBlock.js
 Autor : rach
@@ -9,7 +10,7 @@ explanaion :
 ********************************************************************************/
 
 var fs = require('fs');
-var Blockchain = require('./blockchain');
+var Blockchain = require('../blockchain');
 
 var make = function() {
   var genesis = new Blockchain();

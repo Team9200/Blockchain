@@ -4,19 +4,19 @@ var Blockchain = require('./blockchain');
   function : searchInBlock
   explanaion : 블록 내부 정보를 조회하는 메소드
   input : key, value
-  output : 해당하는 malware의 모든 정보를 반환
+  output : 해당하는 post의 모든 정보를 반환
 ********************************************************************************/
 
 Blockchain.prototype.searchInBlock = function (key, value) {
     var result = [];
-    var cnt = this.malwaresList.length;
+    var cnt = this.postsList.length;
 
     if (cnt == 0)
       return false;
 
     for (var i=0; i<cnt; ++i) {
-      if(this.malwaresList[i][key] == value)  {
-          result.push(this.malwaresList[i]);
+      if(this.postsList[i][key] == value)  {
+          result.push(this.postsList[i]);
       }
     }
     if (result.length == 0) {
@@ -31,7 +31,7 @@ Blockchain.prototype.searchInBlock = function (key, value) {
     function: searchInChain
     explanaion: 체인안에서 모든 블록을 순회하며 정보를 탐색하는 메소드
     input: key, value
-    output : 해당하는 malware의 모든 정보를 반환
+    output : 해당하는 post의 모든 정보를 반환
   *******************************************************************************/
 
   Blockchain.prototype.searchInChain = function (key, value) {
@@ -49,7 +49,6 @@ Blockchain.prototype.searchInBlock = function (key, value) {
     else
       return result;
   };
-
 
 
 
@@ -135,7 +134,7 @@ Blockchain.prototype.searchInBlock = function (key, value) {
     }
   }
 
- 
+
 
 /*******************************************************************************
   function : findAllUTXOs
@@ -160,11 +159,11 @@ Blockchain.prototype.findAllUTXOs = function(){
 
     if (cnt == 0)
       continue;
-    
+
     else {
       // 현재 블록 내부의 트랜잭션 수(cnt) 만큼 반복문 실행
       for (var j = 0; j < cnt; j++){
-        
+
         t_tx = this.chain[i].transactionList[j];
         console.log("t_tx = ", t_tx);
         t_input_cnt = t_tx["inputCnt"];
@@ -175,7 +174,7 @@ Blockchain.prototype.findAllUTXOs = function(){
         console.log("t_vin = ",t_vin);
         //inputCnt만큼 for문을 돌면서 vin에서 각 index마다 참조하는 transaction과 해당 index를 UTXOdict에서 찾는다.
         for (var k = 0; k < t_input_cnt; k++){
-          console.log("k = ",k);       
+          console.log("k = ",k);
           reference_txid = t_tx["vin"][k]["txid"];
           console.log("reference_txid = ",reference_txid);
           // 현재 UTXOdict에 존재한다면 UTXOindex[]에 해당 index를 삭제한다.
@@ -194,11 +193,11 @@ Blockchain.prototype.findAllUTXOs = function(){
               //console.log("UTXO_dict[key].indexOf(t_vin[k][\"index\"]) => ",UTXO_dict[key].indexOf(t_vin[k]["index"]) );
               //console.log("t_vin[k][\"index\"] => ",t_vin[k]["index"])
               //console.log("UTXO_dict[key].indexOf(0) ==>", UTXO_dict[key].indexOf(0));
-              //console.log("Before Splice UTXO_dict[key].length ==>",UTXO_dict[key].length);              
+              //console.log("Before Splice UTXO_dict[key].length ==>",UTXO_dict[key].length);
               UTXO_dict[key].splice((UTXO_dict[key].indexOf(t_vin[k]["index"])),1);
               console.log("After Splice ==>",UTXO_dict[key]);
               console.log("After Splice UTXO_dict[key].length ==>",UTXO_dict[key].length);
-              
+
               // UTXOindex[]의 길이가 1이면 dictionary에서 해당 tx를 삭제한다.
               if(UTXO_dict[key].length == 1){
                 delete UTXO_dict[key];
@@ -207,7 +206,7 @@ Blockchain.prototype.findAllUTXOs = function(){
             }
           }
         }
-        
+
         //outputCnt를 구하고 transaction과 UTXOindex[]를 UTXO_dict에 추가한다.
         t_output_cnt = t_tx["outputCnt"];
         t_vout = t_tx["vout"];
@@ -225,7 +224,7 @@ Blockchain.prototype.findAllUTXOs = function(){
         console.log("JSON.parse(JSON.stringify(t_tx)) = ",JSON.parse(JSON.stringify(t_tx)));
         console.log("test 1 = ",JSON.stringify(t_tx) == JSON.stringify(temp_array[0]))
         console.log("test 2 = ",t_tx ==temp_array[0]);
-        
+
         UTXO_dict[t_tx["txid"]] = temp_array;
         console.log("UTXO_dict = ", UTXO_dict);
       }
@@ -248,7 +247,7 @@ Blockchain.prototype.findAllUTXOs = function(){
 ********************************************************************************/
 
 Blockchain.prototype.findMyUTXOs = function(address){
-  
+
 
   var myUtxos = { };
   var AllUTXO = { };
@@ -258,7 +257,7 @@ Blockchain.prototype.findMyUTXOs = function(address){
   for(var key in AllUTXO){
     var parse = JSON.parse(AllUTXO[key][0]);
 
-    
+
     for(var i = 0; i < parse["outputCnt"]; i++ ){
       //console.log("parse[\"out\"][0]", parse["vout"][i]["publicKey"]);
       if(address == parse["vout"][i]["publicKey"] && include(AllUTXO[key],i)){
@@ -282,7 +281,7 @@ Blockchain.prototype.findMyUTXOs = function(address){
 
 
 Blockchain.prototype.MakePayment = function (amount, receiver_publickey, sender_privatekey, sender_publickey, t_version){
-  
+
   var myVin = [];
   console.log("input = " , amount, receiver_publickey, sender_privatekey, sender_publickey, t_version);
   var t_MyUtxos = {};
@@ -296,33 +295,33 @@ Blockchain.prototype.MakePayment = function (amount, receiver_publickey, sender_
   // Key 개수 만큼 MyUTXO를 순회한다.
   for(var key in t_MyUtxos){
     console.log("key ==> ",key)
-    
+
     // 현재 자산의 누적 합보다 보내야 할 금액이 더 크면 누적합에 UTXO를 계속 추가하며 누적 합을 키운다.
-    // 결과적으로 vin에 사용할 UTXO 만큼 추가하여 vin을 생성한다. 
+    // 결과적으로 vin에 사용할 UTXO 만큼 추가하여 vin을 생성한다.
     if(amount > mySum){
       mySum = parseInt(key) + parseInt(mySum);
       console.log("mySum ==>", mySum)
       myVin[i] = new Object;
       console.log("JSON.parse(t_MyUtxos[key][0]) => ",JSON.parse(t_MyUtxos[key]));
       myVin[i]["txid"] = JSON.parse(t_MyUtxos[key])["txid"];
-      
+
       for(var j = 0; j < JSON.parse(t_MyUtxos[key])["outputCnt"]; j++){
-        console.log("JSON.parse(t_MyUtxos[key])[\"vout\"][j][\"publicKey\"] =>",JSON.parse(t_MyUtxos[key])["vout"][j]["publicKey"]) 
+        console.log("JSON.parse(t_MyUtxos[key])[\"vout\"][j][\"publicKey\"] =>",JSON.parse(t_MyUtxos[key])["vout"][j]["publicKey"])
         if(JSON.parse(t_MyUtxos[key])["vout"][j]["publicKey"] == sender_publickey){
           console.log("JSON.parse(t_MyUtxos[key][0])[\"vout\"][j][\"publicKey\"] =>" ,JSON.parse(t_MyUtxos[key])["vout"][j]["publicKey"]);
           myVin[i]["index"] = JSON.parse(t_MyUtxos[key])["vout"][j]["index"];
         }
       }
       // 서명 미구현
-      myVin[i]["sig"] = "sig(private_key, JSON.parse(t_MyUtxos[key][0])[\"txid\"])";  
+      myVin[i]["sig"] = "sig(private_key, JSON.parse(t_MyUtxos[key][0])[\"txid\"])";
       i++;
     }
-    
+
   }
 
   console.log("myVin =>", myVin);
   console.log("mySum => ", mySum);
-  
+
 
   // UTXO를 다 돌고 돈이 부족하면 false 리턴
   if(amount > mySum){
@@ -331,12 +330,12 @@ Blockchain.prototype.MakePayment = function (amount, receiver_publickey, sender_
   }
 
   // 일단 최대 받는사람 1명 + 나에게 잔돈 전송까지 구현
-  var myVout = []; 
+  var myVout = [];
   myVout[0] = new Object;
   myVout[0]["value"] = amount;
   myVout[0]["index"] = 0;
   myVout[0]["publicKey"] = receiver_publickey;
-  
+
   var t_outputCnt = 1;
 
   if(amount<mySum){
@@ -356,7 +355,7 @@ Blockchain.prototype.MakePayment = function (amount, receiver_publickey, sender_
     outputCnt : t_outputCnt,
     vout : myVout
   };
-  
+
   console.log("newTransaction = ", newTransaction);
 
   // 새 트랜잭션에 추가
