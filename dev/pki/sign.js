@@ -9,10 +9,10 @@ const bs58check = require('bs58check');
   output : signiture(buffer array)
 ********************************************************************************/
 
-function signTransaction(transaction, privatekey) {
-  let msg = Buffer.from(transaction[tx_id].slice(0,32));
+var signTransaction = function(transaction, privatekey) {
+  let msg = Buffer.from(transaction["txid"].slice(0,32));
   let sign = secp256k1.sign(msg, privatekey);
   return sign.signature;
 }
 
-module.exports = signTransaction;
+exports.signTransaction = signTransaction;

@@ -1,4 +1,5 @@
 const sha256 = require('sha256');
+const secp256k1 = require('secp256k1');
 var Blockchain = require('../search') // need exports
 
 /*******************************************************************************
@@ -89,7 +90,6 @@ function verifyTransaction(transaction) {
     if (secp256k1.verify(txid, vin["signature"], publickey) == false)
       return false;
   }
-
   return true;
 }
 

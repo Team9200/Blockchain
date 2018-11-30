@@ -1,5 +1,6 @@
 const secp256k1 = require('secp256k1');
 const bs58check = require('bs58check');
+const { randomBytes } = require('crypto');
 
 /*******************************************************************************
   function: getPrivKey
@@ -8,12 +9,12 @@ const bs58check = require('bs58check');
   output: bs58check로 인코딩된 private key
 *******************************************************************************/
 
-function getPrivKey() {
+var getPrivKey = function() {
   let privKey;
   do {
     privKey = randomBytes(32)
   } while (!secp256k1.privateKeyVerify(privKey))
-  privKey = bs58check(privKey);            // bs58check 로 인코딩 해서 리턴
+  privKey = bs58check.encode(privKey);            // bs58check 로 인코딩 해서 리턴
   return privKey;
 }
 
@@ -24,8 +25,12 @@ function getPrivKey() {
   output: publickey
 *******************************************************************************/
 
-function getPubKey(privKey) {
+var getPubKey = function(privKey) {
+  privKey = bs58check.decode(privKey);
   let pubKey = secp256k1.publicKeyCreate(privKey);
-  pubKey = bs58check(pubKey);               // bs58check로 인코딩 해서 리턴
+  pubKey = bs58check.encode(pubKey);               // bs58check로 인코딩 해서 리턴
   return pubKey;
 }
+
+exports.getPrivKey = getPrivKey;
+exports.getPubKey = getPubKey;
