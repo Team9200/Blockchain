@@ -1,6 +1,5 @@
 const sha256 = require('sha256');
-
-function findAddressUTXO(address){};
+var Blockchain = require('./search') // need exports
 
 /*******************************************************************************
   function: sumVoutValue
@@ -35,6 +34,17 @@ function sumVinValue(transaction) {
 }
 
 /*******************************************************************************
+  function: compareVinVout
+  explanaion: Vin과 Vout의 합계를 비교함
+  input : transaction
+  output: float
+*******************************************************************************/
+
+function compareVinVout(transaction) {
+  return sumVoutValue(transaction)-sumVinValue(transaction);
+}
+
+/*******************************************************************************
   function: findTransaction
   explanaion: 입력 받은 txid에 해당하는 transaction을 찾는 함수
   input : utxopool, txid
@@ -43,11 +53,19 @@ function sumVinValue(transaction) {
 
 function findTransaction(utxopool, txid) {
   for(var utxo in utxopool) {
-    if (utxo["txid"] == txid)
+    if (utxo["txid"] != undefined)
       return utxo;
   }
   return false
 };
+
+/*******************************************************************************
+  function: verifyTxSig
+  explanaion: transaction의 서명값을 검증하는 함수 
+  input : transaction의 서명을
+  output:
+*******************************************************************************/
+
 
 /*******************************************************************************
   function: verifyTransaction
@@ -57,18 +75,18 @@ function findTransaction(utxopool, txid) {
 *******************************************************************************/
 
 function verifyTransaction(transaction) {
-  const utxolist = findAddressUTXO(transaction["vout"]["publickey"]);
-  let temptx, tempmsg, tempkey;
+  const utxolist = findAddressUTXO(transaction["vout"]["publickey"]);   // need to be fixed
+  let tx, txid, publickey;
 
   if (utxolist == false) return false;
-  if (sumVinValue(transaction) < sumVoutValue(transaction)) return false;
+  if (compareVinVout(transaction<0)) return false;
 
   for (var vin in transaction["vin"]) {
-    temptx = findTransaction(utxolist, vin["txid"]);
-    tempmsg = temptx["txid"];
-    tempkey = temptx["vout"][vin["index"]]["publickey"]
+    tx = findTransaction(utxolist, vin["txid"]);
+    txid = tx["txid"];
+    publickey = tx["vout"][vin["index"]]["publickey"]
 
-    if (secp256k1.verify(tempmsg, vin["signature"], tempkey) == false)
+    if (secp256k1.verify(txid, vin["signature"], publickey) == false)
       return false;
   }
 
@@ -85,7 +103,7 @@ function verifyTransaction(transaction) {
          hashBlock 과 함께
 *******************************************************************************/
 
-function isBlockLinked(block) {};
+Blockchain.prototype.isBlockLinked = function () {};
 
 /*******************************************************************************
   function: isChainValid

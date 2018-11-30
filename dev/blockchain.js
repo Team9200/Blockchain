@@ -20,11 +20,11 @@ const sha256 = require('sha256');
 
 *******************************************************************************/
 
-function Block(index, timestamp, transactionList, malwaresList, nonce, hash, previousBlockHash) {
+function Block(index, timestamp, transactionList, postsList, nonce, hash, previousBlockHash) {
   this.index = index;
   this.timestamp = timestamp;
   this.transactionList = transactionList;
-  this.malwaresList = malwaresList;
+  this.postsList = postsList;
   this.nonce = nonce;
   this.hash = hash;
   this.previousBlockHash = previousBlockHash;
@@ -39,7 +39,7 @@ function Block(index, timestamp, transactionList, malwaresList, nonce, hash, pre
 function Blockchain() {
   this.chain = [];                           // block을 담는 리스트
   this.pendingTransactions = [];             // 트랜잭션을 담는 리스트
-  this.pendingMalwares = [];                 // 악성코드정보를 담는 리스트
+  this.pendingPosts = [];                 // 악성코드정보를 담는 리스트
   this.createNewBlock(100, '0', '0');        // genesis block 생성
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
@@ -59,14 +59,14 @@ Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash, hash) {
     this.chain.length + 1,
     Date.now(),
     this.pendingTransactions,
-    this.pendingMalwares,
+    this.pendingPosts,
     nonce,
     hash,
     previousBlockHash
   )
 
   this.pendingTransactions = [];                // 다음 블록을 위한 작업
-  this.pendingMalwares = [];
+  this.pendingPosts = [];
   this.chain.push(newBlock);
 
   return newBlock;
@@ -105,7 +105,6 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
     outputCnt : transaction["outputCnt"],
     vout: {
       value: transaction["vout"]["value"],
-      index: transaction["vout"]["index"],
       publicKey: transaction["vout"]["publicKey"]
     }
   }
@@ -114,30 +113,31 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
 };
 
 /*******************************************************************************
-  function : addNewMalware
+  function : addNewPost
   explanaion : 새로운 인텔리전스 정보를 생성하는 함수
-  input : malware 정보(json format)
+  input : post 정보(json format)
   output : 생성된 트랜잭션을 담고 있는 블록의 인덱스 (마지막 블록)
 ********************************************************************************/
 
-Blockchain.prototype.addNewMalware = function (malware) {
-  const newMalware = {
-    analyzer: malware["analyzer"],
-    md5: malware["md5"],
-    sha1: malware["sha1"],
-    sha256: malware["sha256"],
-    ssdeep : malware["ssdeep"],
-    imphash: malware["imphash"],
-    filetype: malware["filetype"],
-    tag_name_etc: malware["tag_name_etc"],
-    filesize : malware["filesize"],
-    behavior : malware["behavior"],
-    date : malware["date"],
-    first_seen: malware["first_seen"],
-    taglist: malware["taglist"],
+Blockchain.prototype.addNewPost = function (post) {
+  const newPost = {
+    azid: sha256(JSON.stringify(post)),
+    analyzer: post["analyzer"],
+    collector: post["collector"],
+    md5: post["md5"],
+    sha1: post["sha1"],
+    sha256: post["sha256"],
+    filetype: post["filetype"],
+    tag_name_etc: post["tag_name_etc"],
+    filesize : post["filesize"],
+    behavior : post["behavior"],
+    date : post["date"],
+    first_seen: post["first_seen"],
+    taglist: post["taglist"],
+    discription: post["discription"]       // maybe markdown format?
   }
 
-  this.pendingMalwares.push(newMalware);
+  this.pendingPosts.push(newPost);
   return this.getLastBlock()['index'] + 1;
 };
 

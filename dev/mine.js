@@ -51,7 +51,7 @@ Blockchain.prototype.miningBlock = function () {
 
   const currentBlockData = {
     transaction:this.transactionList,
-    malware:this.malwaresList,
+    post:this.postsList,
     index:lastBlock['index']+1
   };
 
@@ -59,11 +59,16 @@ Blockchain.prototype.miningBlock = function () {
   const blockHash = this.hashBlock(previousBlockHash,currentBlockData,nonce);
 
   //채굴에 대한 보상
-  var bosang = {};
-  bosang["amount"] = 10;
-  bosang["sender"] = "award";
-  bosang["recipient"] = nodeAddress;
-  this.addNewTransaction(bosang);
+  var reward = {
+    "version": 0.2,
+    "inputCnt": 0,
+    "outputCnt": 1,
+    "vout": {
+      "value": 100
+    }
+  };
+
+  this.addNewTransaction(reward);
   const newBlock = this.createNewBlock(nonce, previousBlockHash, blockHash);
   return newBlock;
 };

@@ -16,7 +16,7 @@ var marlist = [];
 Blockchain.prototype.Blockchain = function (input) {
   this.chain = input.chain;
   this.pendingTransactions = input.pendingTransactions;
-  this.pendingMalwares = input.pendingMalwares;
+  this.pendingPosts = input.pendingPosts;
 };
 
 /*******************************************************************************
