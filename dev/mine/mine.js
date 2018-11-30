@@ -50,8 +50,8 @@ Blockchain.prototype.miningBlock = function () {
   const previousBlockHash = lastBlock.hash;
 
   const currentBlockData = {
-    transaction:this.transactionList,
-    post:this.postsList,
+    transaction:this.pendingTransactions,
+    post:this.pendingPosts,
     index:lastBlock['index']+1
   };
 
@@ -63,8 +63,14 @@ Blockchain.prototype.miningBlock = function () {
     "version": 0.2,
     "inputCnt": 0,
     "outputCnt": 1,
+    "vin": {
+      "txid":0,
+      "index":0,
+      "sig":0,
+    },
     "vout": {
-      "value": 100
+      "value": 100,
+      "publickey": "miner address",
     }
   };
 
