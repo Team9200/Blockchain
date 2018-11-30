@@ -178,25 +178,36 @@ Blockchain.prototype.addNewVote = function (vote) {
 ********************************************************************************/
 
 Blockchain.prototype.addNewTransaction = function (transaction) {
+
+  const t_vin = [transaction["inputCnt"]];
+  for(var i = 0; i < transaction["inputCnt"];i++){
+    t_vin[i] = new Object;
+    t_vin[i]["txid"] = transaction["vin"][i]["txid"];
+    t_vin[i]["index"] = transaction["vin"][i]["index"];
+    t_vin[i]["sig"] = transaction["vin"][i]["sig"];
+  }
+
+  const t_vout = [transaction["vout"]];
+  for(var i = 0; i < transaction["outputCnt"];i++){
+    t_vout[i] = new Object;
+    t_vout[i]["value"] = transaction["vout"][i]["value"];
+    t_vout[i]["index"] = transaction["vout"][i]["index"];
+    t_vout[i]["publicKey"] = transaction["vout"][i]["publicKey"];
+  }
+
+
   const newtransaction = {
-    txid: sha256(JSON.stringify(transaction)),
-    version: transaction['version'],
+    txid: sha256(JSON.stringify(transaction)+Date.now()),
+    //txid: sha256(JSON.stringify(transaction)),
+    version: transaction["version"],
 
-    inputCnt: transaction['inputCnt'],
-    vin: {
-      txid: transaction['vin']['txid'],
-      index: transaction['vin']['index'],
-      sig: transaction['vin']['sig'],
-    },
+    inputCnt: transaction["inputCnt"],
+    vin: t_vin,
 
-    outputCnt : transaction['outputCnt'],
-    vout: {
-      value: transaction['vout']['value'],
-      publicKey: transaction['vout']['publicKey']
-    }
+    outputCnt : transaction["outputCnt"],
+    vout: t_vout
+
   }
   this.pendingTransactions.push(newtransaction);
   return this.getLastBlock()['index'] + 1;
 };
-
-module.exports = Blockchain;
