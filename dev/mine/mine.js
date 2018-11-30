@@ -50,9 +50,11 @@ Blockchain.prototype.miningBlock = function () {
   const previousBlockHash = lastBlock.hash;
 
   const currentBlockData = {
-    transaction:this.pendingTransactions,
-    post:this.pendingPosts,
-    index:lastBlock['index']+1
+    index: lastBlock['index']+1,
+    post: this.pendingPosts,
+    reply: this.pendingReplies,
+    vote: this.pendingVotes,
+    transaction: this.pendingTransactions
   };
 
   const nonce = this.proofOfWork(previousBlockHash,currentBlockData);
