@@ -20,11 +20,13 @@ const sha256 = require('sha256');
 
 *******************************************************************************/
 
-function Block(index, timestamp, transactionList, postsList, nonce, hash, previousBlockHash) {
+function Block(index, timestamp, postList, replyList, voteList, transactionList, nonce, hash, previousBlockHash) {
   this.index = index;
   this.timestamp = timestamp;
+  this.postList = postList;
+  this.replyList = replyList;
+  this.voteList = voteList;
   this.transactionList = transactionList;
-  this.postsList = postsList;
   this.nonce = nonce;
   this.hash = hash;
   this.previousBlockHash = previousBlockHash;
@@ -37,10 +39,12 @@ function Block(index, timestamp, transactionList, postsList, nonce, hash, previo
 *******************************************************************************/
 
 function Blockchain() {
-  this.chain = [];                           // block을 담는 리스트
-  this.pendingTransactions = [];             // 트랜잭션을 담는 리스트
-  this.pendingPosts = [];                 // 악성코드정보를 담는 리스트
-  this.createNewBlock(100, '0', '0');        // genesis block 생성
+  this.chain = [];                            // block을 담는 리스트
+  this.pendingPosts = [];                     // 악성코드정보를 담는 리스트
+  this.pendingReplies = [];                   // 대답 정보를 담는 리스트
+  this.pendingVotes = [];                     // 투표 정보를 담는 리스트
+  this.pendingTransactions = [];              // 트랜잭션을 담는 리스트
+  this.createNewBlock(100, '0', '0');         // genesis block 생성
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
 }
@@ -58,15 +62,19 @@ Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash, hash) {
   const newBlock = new Block(
     this.chain.length + 1,
     Date.now(),
-    this.pendingTransactions,
     this.pendingPosts,
+    this.pendingReplies,
+    this.pendingVotes,
+    this.pendingTransactions,
     nonce,
     hash,
     previousBlockHash
   )
 
-  this.pendingTransactions = [];                // 다음 블록을 위한 작업
-  this.pendingPosts = [];
+  this.pendingPosts = [];               // 다음 블록을 위한 작업
+  this.pendingReplies = [];
+  this.pendingVotes = [];
+  this.pendingTransactions = [];
   this.chain.push(newBlock);
 
   return newBlock;
@@ -84,6 +92,85 @@ Blockchain.prototype.getLastBlock = function() {
 }
 
 /*******************************************************************************
+  function : addNewPost
+  explanaion : 새로운 인텔리전스 정보를 생성하는 함수
+  input : post 정보(json format)
+  output : 생성된 트랜잭션을 담고 있는 블록의 인덱스 (마지막 블록)
+********************************************************************************/
+
+Blockchain.prototype.addNewPost = function (post) {
+  const newBody = {                                 // 실제 분석정보가 들어가는 부분
+    analyzer: post.body['analyzer'],
+    collector: post.body['collector'],
+    md5: post.body['md5'],
+    sha1: post.body['sha1'],
+    sha256: post.body['sha256'],
+    filetype: post.body['filetype'],
+    tag_name_etc: post.body['tag_name_etc'],
+    filesize : post.body['filesize'],
+    behavior : post.body['behavior'],
+    date : post.body['date'],
+    first_seen: post.body['first_seen'],
+    taglist: post.body['taglist'],
+    discription: post.body['discription']                // maybe markdown format?
+  }
+  const newPost = {
+    title: post['title'],
+    timestamp: Date.now(),
+    body: newBody,
+    hashtag: post['hashtag'],
+    publickey: post['publickey'],
+    sign: post['sign'],
+    permlink: post['permlink']
+  }
+
+  this.pendingPosts.push(newPost);
+  return this.getLastBlock()['index'] + 1;
+};
+
+
+/*******************************************************************************
+  function : addNewReply
+  explanaion : 새로운 답글을 추가하는 메소드
+  input : json format reply
+  output : NULL
+********************************************************************************/
+
+Blockchain.prototype.addNewReply = function (reply) {
+  const newReply = {
+    permlink: reply['permlink'],
+    refpermlink: reply['refpermlink'],
+    timestamp: Date.now(),
+    publickey: reply['publickey'],
+    sign: reply['sign'],
+    text: reply['text']
+  }
+
+  this.pendingReplies.push(newReply);
+  return this.getLastBlock()['index'] + 1;
+};
+
+/*******************************************************************************
+  function : addNewVote
+  explanaion : 새로운 투표를 추가하는 메소드
+  input : json format vote
+  output : NULL
+********************************************************************************/
+
+Blockchain.prototype.addNewVote = function (vote) {
+  const newVote = {
+    refpermlink: vote['refpermlink'],
+    timestamp: Date.now(),
+    publickey: vote['publickey'],
+    sign: vote['sign'],
+    weight: vote['weight']
+  }
+
+  this.pendingVotes.push(newVote);
+  return this.getLastBlock()['index'] + 1;
+};
+
+/*******************************************************************************
   function : addNewTransaction
   explanaion : 새로운 트랜잭션을 생성하는 함수
   input : transaction 정보 json format
@@ -93,54 +180,23 @@ Blockchain.prototype.getLastBlock = function() {
 Blockchain.prototype.addNewTransaction = function (transaction) {
   const newtransaction = {
     txid: sha256(JSON.stringify(transaction)),
-    version: transaction["version"],
+    version: transaction['version'],
 
-    inputCnt: transaction["inputCnt"],
+    inputCnt: transaction['inputCnt'],
     vin: {
-      txid: transaction["vin"]["txid"],
-      index: transaction["vin"]["index"],
-      sig: transaction["vin"]["sig"],
+      txid: transaction['vin']['txid'],
+      index: transaction['vin']['index'],
+      sig: transaction['vin']['sig'],
     },
 
-    outputCnt : transaction["outputCnt"],
+    outputCnt : transaction['outputCnt'],
     vout: {
-      value: transaction["vout"]["value"],
-      publicKey: transaction["vout"]["publicKey"]
+      value: transaction['vout']['value'],
+      publicKey: transaction['vout']['publicKey']
     }
   }
   this.pendingTransactions.push(newtransaction);
   return this.getLastBlock()['index'] + 1;
 };
-
-/*******************************************************************************
-  function : addNewPost
-  explanaion : 새로운 인텔리전스 정보를 생성하는 함수
-  input : post 정보(json format)
-  output : 생성된 트랜잭션을 담고 있는 블록의 인덱스 (마지막 블록)
-********************************************************************************/
-
-Blockchain.prototype.addNewPost = function (post) {
-  const newPost = {
-    azid: sha256(JSON.stringify(post)),
-    analyzer: post["analyzer"],
-    collector: post["collector"],
-    md5: post["md5"],
-    sha1: post["sha1"],
-    sha256: post["sha256"],
-    filetype: post["filetype"],
-    tag_name_etc: post["tag_name_etc"],
-    filesize : post["filesize"],
-    behavior : post["behavior"],
-    date : post["date"],
-    first_seen: post["first_seen"],
-    taglist: post["taglist"],
-    discription: post["discription"]       // maybe markdown format?
-  }
-
-  this.pendingPosts.push(newPost);
-  return this.getLastBlock()['index'] + 1;
-};
-
-
 
 module.exports = Blockchain;
