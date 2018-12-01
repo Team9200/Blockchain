@@ -65,15 +65,15 @@ Blockchain.prototype.miningBlock = function () {
     "version": 0.2,
     "inputCnt": 0,
     "outputCnt": 1,
-    "vin": {
-      "txid":0,
-      "index":0,
-      "sig":0,
-    },
-    "vout": {
-      "value": 100,
-      "publickey": "miner address",
+    "vin": [
+    ],
+    "vout": [
+      {
+      "index" : 0,
+      "value" : 10,
+      "publicKey" : "012344"
     }
+  ]
   };
 
   this.addNewTransaction(reward);
