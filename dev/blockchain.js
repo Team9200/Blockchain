@@ -211,3 +211,5 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
   this.pendingTransactions.push(newtransaction);
   return this.getLastBlock()['index'] + 1;
 };
+
+module.exports = Blockchain;
