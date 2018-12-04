@@ -3,6 +3,13 @@ function UTXO() {
   this.utxopool = {};
 }
 
+/*******************************************************************************
+  function: isValidTx
+  explanaion: 입력된 transaction이 유효한 transaction인지 검증하는 함수
+  input : trnasaction
+  output: boolean
+*******************************************************************************/
+
 UTXO.prototype.isValidTx = function (transaction) {
   let vin = transaction['vin'];
   let vout = transaction['vout'];
@@ -98,6 +105,13 @@ UTXO.prototype.isVerifiedVin = function (vin) {
 };
 
 //-----------------------------------------------------------
+
+/*******************************************************************************
+  function: updateUTXO
+  explanaion: 검증이 끝난 transaction을 바탕으로 utxo를 업데이트 하는 함수
+  input : 검증이 끝난 transaction
+  output: boolean? not yet
+*******************************************************************************/
 
 UTXO.prototype.updateUTXO = function (transaction) {
   let txid = transaction['txid'];
