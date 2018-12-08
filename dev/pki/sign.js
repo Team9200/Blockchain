@@ -43,7 +43,7 @@ var signPost = function(post, privatekey) {
 var signVote = function(vote, privatekey) {
   let msg = Buffer.from(vote['voteid'].slice(0,32));
   let sign = secp256k1.sign(msg, privatekey);
-  return sign.siganature;
+  return sign.signature;
 }
 
 exports.signTransaction = signTransaction;

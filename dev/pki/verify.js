@@ -8,46 +8,23 @@ const Blockchain =
 */
 
 /*******************************************************************************
-  function : signTransaction
-  explanaion : 트랜잭션 아이디(트랜잭션의 해쉬의 앞에서 부터 절반 자른값)을 개인키로
-              서명하는 함수
-  input : transaction(json), privkey(buffer array)
-  output : signiture(buffer array)
+  function : verifyPost
+  explanaion :
+  input :
+  output :
 ********************************************************************************/
 
-var verifyTxList = function(txlist, utxolist) {
-  let utxoidlist = Object.keys(uxtolist);
-  let txidlist = txlist.map(tx => {return tx['txid']});
-
-
-}
+var verifyPost = function(post, publickey) {};
 
 /*******************************************************************************
-  function : signPost
-  explanaion : post 또는 reply의 permlink를 개인키로 서명하는 함수
-  input : transaction(json) or reply(json) // privkey(buffer array)
-  output : signiture(buffer array)
+  function : verifyVote
+  explanaion :
+  input :
+  output :
 ********************************************************************************/
 
-var signPost = function(post, privatekey) {
-  let msg = Buffer.from(post['permlink'].slice(0,32));
-  let sign = secp256k1.sign(msg, privatekey);
-  return sign.signature;
-}
+var verifyVote = function(vote, publickey) {}
 
-/*******************************************************************************
-  function : signVote
-  explanaion : vote의 voteid를 개인키로 서명하는 함수
-  input : vote(json) // privkey(buffer array)
-  output : signiture(buffer array)
-********************************************************************************/
-
-var signVote = function(vote, privatekey) {
-  let msg = Buffer.from(vote['voteid'].slice(0,32));
-  let sign = secp256k1.sign(msg, privatekey);
-  return sign.siganature;
-}
-
-exports.signTransaction = signTransaction;
-exports.signPost = signPost;
-exports.signVote = sigenVote;
+exports.verifyTransaction = verifyTransaction;
+exports.verifyPost = verifyPost;
+exports.verifyVote = verifyVote;
