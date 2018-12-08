@@ -44,7 +44,7 @@ function Blockchain() {
   this.pendingReplies = [];                   // 대답 정보를 담는 리스트
   this.pendingVotes = [];                     // 투표 정보를 담는 리스트
   this.pendingTransactions = [];              // 트랜잭션을 담는 리스트
-  this.createNewBlock(100, '0', '0');         // genesis block 생성
+  this.createNewBlock(9200, 'Open Threat Intelligence', 'Best Of the Best 7');         // genesis block 생성
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
 }
@@ -198,8 +198,8 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
 
 
   const newtransaction = {
-    txid: '04' + sha256(JSON.stringify(transaction)+Date.now()),
-    //txid: sha256(JSON.stringify(transaction)),
+    txid: transaction['txid'],
+    //txid: '04' + sha256(JSON.stringify(transaction)),
     version: transaction["version"],
 
     inputCnt: transaction["inputCnt"],

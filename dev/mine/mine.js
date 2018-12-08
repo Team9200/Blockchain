@@ -64,10 +64,10 @@ Blockchain.prototype.miningBlock = function () {
   //채굴에 대한 보상
   let miner = getRandomMiner();
   var reward = {
-    "version": 0.2,
+    "version": 1.00,
     "inputCnt": 0,
+    "vin": null,
     "outputCnt": 0,
-    "vin": [],
     "vout": [
       {
       "index" : 0,

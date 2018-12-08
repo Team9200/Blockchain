@@ -6,6 +6,10 @@ var readChain = readWriteChain.readChain;
 var writeChain = readWriteChain.writeChain;
 let filename = './smallchain.json';
 
+/*
 var localChain = fs.readFileSync(filename);
 localChain = JSON.parse(localChain);
-console.log(localChain);
+console.log(localChain.chain[1]);
+*/
+let sample = readChain(filename);
+console.log(sample);
