@@ -112,7 +112,7 @@ Blockchain.prototype.addNewPost = function (post) {
     date : post.body['date'],
     first_seen: post.body['first_seen'],
     taglist: post.body['taglist'],
-    discription: post.body['discription']                // maybe markdown format?
+    description: post.body['description']                // maybe markdown format?
   }
   const newPost = {
     title: post['title'],
@@ -159,6 +159,7 @@ Blockchain.prototype.addNewReply = function (reply) {
 
 Blockchain.prototype.addNewVote = function (vote) {
   const newVote = {
+    voteid: vote['voteid'],
     refpermlink: vote['refpermlink'],
     timestamp: Date.now(),
     publickey: vote['publickey'],
@@ -189,15 +190,15 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
 
   const t_vout = [transaction["vout"]];
   for(var i = 0; i < transaction["outputCnt"];i++){
-    t_vout[i] = new Object;
+    t_vout[i] = {};
     t_vout[i]["value"] = transaction["vout"][i]["value"];
     t_vout[i]["index"] = transaction["vout"][i]["index"];
-    t_vout[i]["publicKey"] = transaction["vout"][i]["publicKey"];
+    t_vout[i]["publickey"] = transaction["vout"][i]["publickey"];
   }
 
 
   const newtransaction = {
-    txid: sha256(JSON.stringify(transaction)+Date.now()),
+    txid: '04' + sha256(JSON.stringify(transaction)+Date.now()),
     //txid: sha256(JSON.stringify(transaction)),
     version: transaction["version"],
 

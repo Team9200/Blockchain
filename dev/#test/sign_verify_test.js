@@ -16,9 +16,9 @@ let tr = {
 }
 tr["txid"] = sha256(JSON.stringify(tr));
 
-privatekey = bs58check.decode(privatekey);
+//privatekey = bs58check.decode(privatekey);
 let sig = signTransaction(tr,privatekey);
-publickey = bs58check.decode(publickey);
+//publickey = bs58check.decode(publickey);
 let result = secp256k1.verify(Buffer.from(tr["txid"].slice(0,32)), sig, publickey);
 
 console.log(publickey.length);
