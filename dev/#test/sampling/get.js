@@ -10,11 +10,11 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-var getUserPublic = function(n) {
+var getUserPublic = function(usernumber) {
   let filename = './pubkeylist.json';
   let publist = fs.readFileSync(filename);
   publist = JSON.parse(publist);
-  return publist[n];
+  return publist[usernumber];
 }
 
 var getUserPrivate = function(n) {
@@ -24,6 +24,11 @@ var getUserPrivate = function(n) {
   return privlist[n];
 }
 
+var getRandomMiner = function() {
+  let n = getRandomInt(10);
+  return getUserPublic(n);
+}
+
 var getUnitTransaction = function(value) {
   let transaction = {
     'txid':null,
@@ -31,28 +36,29 @@ var getUnitTransaction = function(value) {
     'inputCnt':0,
     'vin':null,
     'outputCnt':0,
-    'vout':{}
+    'vout':[{}]
   };
-  transaction['vout']['value'] = value;
-  transaction['vout']['index'] = 0;
-  transaction['vout']['publickey'] = getUserPublic(0);
+  transaction['vout'][0]['value'] = value;
+  transaction['vout'][0]['index'] = 0;
+  transaction['vout'][0]['publickey'] = getUserPublic(0);
   transaction['txid'] = '04' + sha256(JSON.stringify(transaction));
   return transaction;
 }
 
-var getPostBody = function(n) {
+var getPostBody = function(usernumber) {
   let filename = './malwareslist.json';
   let malwareslist = fs.readFileSync(filename)
   malwareslist = JSON.parse(malwareslist);
 
-  let body = malwareslist[n];
-  body['analyzer'] = getUserPublic(n);
+  let body = malwareslist[getRandomInt(100)];
+  body['analyzer'] = getUserPublic(usernumber);
   body['collector'] = getUserPublic(getRandomInt(1000));
   body['description'] = 'this is test description! in real, it must be more specific.';
   return body;
 }
 
-var getUserPost = function(usernumber, body) {
+var getUserPost = function(usernumber) {
+  let body = getPostBody(usernumber);
   let title = 'analyze of ' + body['sha256'];
   let hashtag = ['test', 'analyzed', 'gosu'];
   let publickey = getUserPublic(usernumber);
@@ -90,7 +96,7 @@ var getUserVote = function(usernumber, refpermlink) {
   vote['refpermlink'] = refpermlink;
   vote['timestamp'] = Date.now();
   vote['publickey'] = getUserPublic(usernumber);
-  vote['weight'] = 100;
+  vote['weight'] = 5;
   vote['voteid'] = '03' + sha256(JSON.stringify(vote));
 
   let privatekey = bs58check.decode(getUserPrivate(usernumber));
@@ -103,6 +109,7 @@ var getUserVote = function(usernumber, refpermlink) {
 module.exports = {
   getUserPublic: getUserPublic,
   getUserPrivate: getUserPrivate,
+  getRandomMiner: getRandomMiner,
   getUnitTransaction: getUnitTransaction,
   getPostBody: getPostBody,
   getUserPost: getUserPost,

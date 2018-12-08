@@ -1,12 +1,5 @@
-const mine = require('../mine/mine.js');
-const {readChain, writeChain} = require('./sampling/readWriteChain');
-const { getUserPublic,
- getUserPrivate,
- getUnitTransaction,
- getPostBody,
- getUserPost,
- getUserReply,
- getUserVote } = require('./sampling/get');
+const {readChain} = require('./sampling/readWriteChain');
 
-let sample = readChain('./smallchain.json');
-console.log(sample);
+let sample = readChain('./sample2.json');
+console.log(sample.chain[2]);
+console.log(sample.chain[3]);

@@ -1,3 +1,4 @@
+const Blockchain = require('../../blockchain.js');
 
 /*******************************************************************************
 filename : readWriteChain.js
@@ -10,7 +11,6 @@ explanaion :
 ********************************************************************************/
 
 var fs = require('fs');
-var Blockchain = require('../../mine/mine');
 var marlist = [];
 
 Blockchain.prototype.Blockchain = function (input) {
@@ -29,8 +29,9 @@ Blockchain.prototype.Blockchain = function (input) {
 var readChain = function(filename) {
   var localChain = fs.readFileSync(filename);
   localChain = JSON.parse(localChain);
-  localChain = new Blockchain(localChain);
-  return localChain;
+  let result = new Blockchain();
+  result.chain = localChain.chain;
+  return result;
 }
 
 /*******************************************************************************
@@ -45,6 +46,13 @@ var writeChain = function(localChain, filename){
     var localChainFile = JSON.stringify(localChain);
     fs.writeFileSync(filename, localChainFile);
 }
+
+/*******************************************************************************
+   function : readList(filename)
+   explanaion : List 를 읽어오는 함수
+   input :
+   return : void
+*******************************************************************************/
 
 var readList = function(filename) {
   var locallist = fs.readFileSync(filename);
