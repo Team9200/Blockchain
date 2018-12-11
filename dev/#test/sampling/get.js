@@ -6,7 +6,7 @@ const sha256 = require('sha256');
 const bs58check = require('bs58check');
 const { signPost, signVote } = require('../../pki/sign.js');
 
-function getRandomInt(max) {
+var getRandomInt = function(max) {
     return Math.floor(Math.random() * max);
 }
 
@@ -47,12 +47,11 @@ var getUnitTransaction = function(value) {
 
 var getPostBody = function(usernumber) {
   let filename = './malwareslist.json';
-  let malwareslist = fs.readFileSync(filename)
-  malwareslist = JSON.parse(malwareslist);
+  let malwareslist = readList(filename);
 
-  let body = malwareslist[getRandomInt(100)];
+  let body = malwareslist[getRandomInt(1000)];
   body['analyzer'] = getUserPublic(usernumber);
-  body['collector'] = getUserPublic(getRandomInt(1000));
+  body['collector'] = getRandomUser();
   body['description'] = 'this is test description! in real, it must be more specific.';
   return body;
 }
@@ -106,7 +105,20 @@ var getUserVote = function(usernumber, refpermlink) {
   return vote;
 }
 
+/* random modules */
+
+var getRandomUser = function() {
+  let rand = getRandomInt(100);
+  return getUserPublic(rand);
+}
+
+var getRandomPost = function() {
+  let rand = getRandomInt(1000);
+  return getUserPost(rand);
+}
+
 module.exports = {
+  getRandomInt: getRandomInt,
   getUserPublic: getUserPublic,
   getUserPrivate: getUserPrivate,
   getRandomMiner: getRandomMiner,
@@ -114,5 +126,7 @@ module.exports = {
   getPostBody: getPostBody,
   getUserPost: getUserPost,
   getUserReply: getUserReply,
-  getUserVote: getUserVote
+  getUserVote: getUserVote,
+  getRandomUser: getRandomUser,
+  getRandomPost: getRandomPost
 }
