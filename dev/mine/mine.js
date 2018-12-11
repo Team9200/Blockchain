@@ -46,7 +46,7 @@ Blockchain.prototype.proofOfWork = function(previousBlockHash, currentBlockData)
   return : lastblock
   *******************************************************************************/
 
-Blockchain.prototype.miningBlock = function () {
+Blockchain.prototype.miningBlock = function (minerPublicKey) {
   const lastBlock = this.getLastBlock();
   const previousBlockHash = lastBlock.hash;
 
@@ -62,13 +62,13 @@ Blockchain.prototype.miningBlock = function () {
   const blockHash = this.hashBlock(previousBlockHash,currentBlockData,nonce);
 
   //채굴에 대한 보상
-  let miner = getRandomMiner();
+  let miner = minerPublicKey;
   var reward = {
     "txid":null,
     "version": 1.00,
     "inputCnt": 0,
     "vin": null,
-    "outputCnt": 0,
+    "outputCnt": 1,
     "vout": [
       {
       "index" : 0,

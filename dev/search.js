@@ -138,7 +138,7 @@ Blockchain.prototype.originfindAllUTXOs = function(){
   UTXO들의 index를 담은 배열을 value로 갖는 Dictionary를 return한다.
 
   input : 없음
-  output : Dictionary(transaction : vout[])
+  output : Dictionary(txid : vout[])
 ********************************************************************************/
 Blockchain.prototype.findAllUTXOs = function(){
   var UTXO_dict = {};
@@ -148,7 +148,7 @@ Blockchain.prototype.findAllUTXOs = function(){
 
     //현재 블록의 트랜잭션 수를 cnt라는 변수에 저장
     var cnt = this.chain[i].transactionList.length;
-
+    console.log("cnt => ",cnt);
     if (cnt == 0)
       continue;
     
@@ -163,6 +163,7 @@ Blockchain.prototype.findAllUTXOs = function(){
         //inputCnt만큼 for문을 돌면서 vin에서 각 index마다 참조하는 transaction과 해당 index를 UTXOdict에서 찾는다.
         for (var k = 0; k < t_input_cnt; k++){
           reference_txid = t_tx["vin"][k]["txid"];
+
           // 현재 UTXOdict에 존재한다면 UTXOindex[]에 해당 index를 삭제한다.
           for(var key in UTXO_dict){
            
@@ -180,7 +181,9 @@ Blockchain.prototype.findAllUTXOs = function(){
         
         //outputCnt를 구하고 transaction과 UTXOindex[]를 UTXO_dict에 추가한다.
         t_output_cnt = t_tx["outputCnt"];
+        console.log("t_output_cnt", t_output_cnt);
         t_vout = t_tx["vout"];
+        console.log("t_vout =>", t_vout);
         temp_array = [];
 
         for(var k = 0; k < t_output_cnt; k++){
@@ -188,6 +191,7 @@ Blockchain.prototype.findAllUTXOs = function(){
         }
         
         UTXO_dict[t_tx["txid"]] = temp_array;
+        console.log("temp_array", temp_array);
       }
     }
   }
@@ -229,52 +233,28 @@ Blockchain.prototype.findMyUTXOs = function(address){
 
 /*******************************************************************************
   function : makeReward
-  explanaion : 
-
+  explanaion : 보상 Transaciton을 생성하여 PendingTransaction에 추가하는 함수
   input : 보상에 담을 블록의 시작 블록(start),  끝 블록(end)
-  output : 
+  do: Start 블록부터 end 블록까지 수집된 Vote를 구하고, Start 블록 이전의 Writer(Post 또는 Reply 작성자) 및 Voter들에게 Reward를 지급함  
+  output : true
 ********************************************************************************/
 
 Blockchain.prototype.makeReward = function(start, end){
-  
-  
-  // 블록 start ~ end 까지 모든 Post, Reply, Vote를 통해 Reward를 산출함.
 
-
-
-  /* 
-  기존에 있었던 모든 Permlink
-  findAllPermlink(start) return Block[0] to Block[start-1], All Permlink and Weight
-    { 
-      Permlink : {
-                    Writer's PublicKey : 0 ,
-                    Voter1's PublicKey : Weight,
-                    Voter2's PublicKey : Weight,
-                    ...
-                  }
-    }
-  */ 
-
+  // start 이전까지 모든 permlink 및 Writer, Voter들의 Weight를 구함
   var allPermlink = {};
   allPermlink = this.findAllPermlink(start);
 
 
-  // 이 구간 안에 수집된 새로운 Weight
+  // 이전 Permlink에 존재하는 글 중에서, 새 구간 안에 수집된 Weight(Vote)들을 구함
   var newWeightDict = {}; 
   newWeightDict = this.getWeight(start, end, allPermlink);
-  console.log("newWeightDict => ",newWeightDict);
-  // newWeightDict = { Permlink : weight, ...  } ;
+  // newWeightDict = { Permlink : weight, ...  };
 
 
 
-
-
-  // 이 구간안의 모든 Weight 를 구함
-  // findTotalWeight()
+  // 새로운 구간안의 모든 Weight의 합을 구한다.
   var totalweight = this.findTotalWeight(newWeightDict);
-  console.log("totalweight => ",totalweight);
-  console.log("this.totalWeight => ",this.totalWeight);
-
 
 
   // weightDict의 길이만큼 반복하면서 Permlink마다 줄 Value를 구함...
@@ -282,13 +262,12 @@ Blockchain.prototype.makeReward = function(start, end){
   var rewardLimit = 100;
   var permRewardDict = {};
   permRewardDict = this.makePermlinkReward(newWeightDict, totalweight, rewardLimit);
-  console.log("11 permRewardDict =>", permRewardDict);
   /*
-    {
-      Permlink1 : value,
-      Permlink2 : value,
-      ...
-    }
+    permRewardDict =  {
+                        Permlink1 : value1,
+                        Permlink2 : value2,
+                        ...
+                      }
   */
 
   
@@ -301,7 +280,31 @@ Blockchain.prototype.makeReward = function(start, end){
 
 
 
+/*******************************************************************************
+  function : findAllPermlink
+  explanaion : 0번쨰 블록 ~ 보상 시작점까지의 모든 Permlink와 Writer, Voter와 Weight를 출력
+              보상 시작점 부터 보상할 구간까지 모든 Voting을 통해 보상함
+              ex) 보상 구간이 20 ~ 30번째 생성된 블록을 통해 이전 Posting들에 대하여 보상할 경우
+                  findAllPermlink(20);
 
+  input : start (보상 시작점)
+  output : PermlinkDict
+
+ { 
+      Permlink1 : {
+                    Writer's PublicKey : 0 ,
+                    Voter1's PublicKey : Weight,
+                    Voter2's   : Weight,
+                    ...
+                  },
+
+      Permlink2 : {
+        ...
+      },
+      ...
+  }
+
+********************************************************************************/
 
 Blockchain.prototype.findAllPermlink = function(start) {
 
@@ -316,7 +319,7 @@ Blockchain.prototype.findAllPermlink = function(start) {
     var postCnt = nowBlock.postList.length;
     var replyCnt = nowBlock.replyList.length;
     var voteCnt = nowBlock.voteList.length;
-    console.log("postCnt => ", postCnt , "replyCnt => ", replyCnt, "voteCnt =>", voteCnt);
+    //console.log("postCnt => ", postCnt , "replyCnt => ", replyCnt, "voteCnt =>", voteCnt);
 
 
     // 현재 블록에 아무 Post, Vote, Reply도 없을 경우, 다음 블록으로 이동
@@ -388,15 +391,12 @@ Blockchain.prototype.getWeight = function(start, end, AllPermLink){
   
   // Weight를 담을 Dictionary를 선언
   WeightDict = {}
-  console.log("AllPermLink =>", AllPermLink);
   for(var i = start; i<end; i++){
 
     // 현재 블록을 nowBlock으로 저장
     nowBlock = this.chain[i];
 
     var voteCnt = nowBlock.voteList.length;
-    console.log("nowBlock.voteList => ",nowBlock.voteList)
-    console.log("voteCnt =>", voteCnt);
 
     // 현재 블록에 Vote가 없을 경우 다음 블록으로 이동
     if(voteCnt == 0)
@@ -428,20 +428,17 @@ Blockchain.prototype.getWeight = function(start, end, AllPermLink){
   }// end for(i)
   
   // WeightDict을 리턴
-  console.log("WeightDict => ", WeightDict);
   return WeightDict;
 }// End function
 
 
+
+// WeightDict에 존재하는 모든 Weight들의 합을 구하는 함수
 Blockchain.prototype.findTotalWeight =  function(WeightDict){
-
-
   sumValues = 0;
   for (var key in WeightDict) {
     sumValues = WeightDict[key] + sumValues;
-
   }
-  console.log("sumValues =>", sumValues);
   return sumValues;
 }
 
@@ -450,8 +447,6 @@ Blockchain.prototype.findTotalWeight =  function(WeightDict){
 Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewardLimit){
 
   PermlinkRewardDict = {};
-  
-
   /*
   const object = WeightDict;
 
@@ -463,16 +458,14 @@ Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewa
   */
 
   for (var key in WeightDict) {
-    console.log("key => ",key)
+    //console.log("key => ",key)
     // check if the property/key is defined in the object itself, not in parent
     if (WeightDict.hasOwnProperty(key)) {           
       PermlinkRewardDict[key] = (WeightDict[key] / TotalWeight) * rewardLimit;
-      console.log("PermlinkRewardDict[key] => ", PermlinkRewardDict[key]);
-      console.log("WeightDict[key] => ",WeightDict[key] ," TotalWeight =>", TotalWeight,"rewardLimit", rewardLimit);
+      //console.log("PermlinkRewardDict[key] => ", PermlinkRewardDict[key]);
+      //console.log("WeightDict[key] => ",WeightDict[key] ," TotalWeight =>", TotalWeight,"rewardLimit", rewardLimit);
     }
   } 
-
-
   return PermlinkRewardDict;
 }
 
@@ -481,12 +474,12 @@ Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewa
 
 Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
-  console.log("PermRewardDict =>", PermRewardDict);
+  //console.log("PermRewardDict =>", PermRewardDict);
   //for(const [key, value] of Object.entries(PermRewardDict)){
   for (var key in PermRewardDict) {  
     
     value = PermRewardDict[key];
-    console.log("PermRewardDict[key] => ",value)
+    //console.log("PermRewardDict[key] => ",value)
     var newtransaction  = {};
     newtransaction["version"] = 0.1;
     newtransaction["inputCnt"] = 1;
@@ -500,20 +493,19 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
     vout = [];
     
     totalWeight = this.findTotalWeight(AllPermlink[key]);
-    console.log("RewardTransaction @ totalWeight => ", totalWeight);
-    console.log("RewardTransaction @ AllPermlink[key] => ", AllPermlink[key]);
+    //console.log("RewardTransaction @ totalWeight => ", totalWeight);
+    //console.log("RewardTransaction @ AllPermlink[key] => ", AllPermlink[key]);
 
     // 보상을 줘야 하는데, Vote는 없고 Post만 있는 경우
     if(totalWeight==0){
-      console.log("if value =>", value);
+      //console.log("if value =>", value);
 
 
-      //for(const[aKey, aValue] of Object.entries(AllPermlink[key])){
       for (var aKey in AllPermlink[key]) {  
-        console.log("aKey =>", aKey);
+        //console.log("aKey =>", aKey);
         
         aValue = AllPermlink[key][aKey];
-        console.log("aValue =>", aValue);
+        //console.log("aValue =>", aValue);
 
         // 현재 Vote가 하나도 없는 경우 Post의 Writer만 모든 보상을 가져갈 수 있다?
         if(totalWeight==0){
@@ -522,7 +514,7 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
           vout[0]["index"] = 0;
           vout[0]["publicKey"] = aKey;
         }
-        console.log("vout => ", vout);
+        //console.log("vout => ", vout);
         break;
       }
     } // end if
@@ -536,8 +528,8 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
       for (var aKey in AllPermlink[key]) { 
 
-        AllPermlink[key][aKey] = aValue
-        console.log("else aValue =>", aValue);
+        aValue = AllPermlink[key][aKey];
+        //console.log("else aValue =>", aValue);
 
         // 0번째는 Writer의 보상이므로 전체 value에서 1/2 한 값 만큼 가져감
         if(newOutputCnt==0){
@@ -562,8 +554,8 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
     newtransaction["outputCnt"] = newOutputCnt;
     newtransaction["vout"] = vout;
-    newtransaction["txid"] =  "04" + sha256(JSON.stringify(newtransaction)+Date.now()),
-    console.log("newTransaction => ", newtransaction);
+    newtransaction["txid"] =  "04" + sha256(JSON.stringify(newtransaction)),
+    //console.log("newTransaction => ", newtransaction);
     this.pendingTransactions.push(newtransaction);
   }
   
