@@ -64,6 +64,7 @@ Blockchain.prototype.miningBlock = function () {
   //채굴에 대한 보상
   let miner = getRandomMiner();
   var reward = {
+    "txid":null,
     "version": 1.00,
     "inputCnt": 0,
     "vin": null,
@@ -73,9 +74,9 @@ Blockchain.prototype.miningBlock = function () {
       "index" : 0,
       "value" : 10,
       "publicKey" : miner
-    }
-  ]
+    }]
   };
+  reward['txid'] = '04' + sha256(JSON.stringify(reward));
 
   this.addNewTransaction(reward);
   const newBlock = this.createNewBlock(nonce, previousBlockHash, blockHash);
