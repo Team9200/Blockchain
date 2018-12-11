@@ -20,6 +20,8 @@ Developing DPoS based Open Threat Intelligence
 ## Usage
 
 # pubkeylist
-- 0~9: storage node
-- 10, 11: well-known analyzer
-- else: random collector, analyzer 
+(index 기준)
+- 0~4: storage node (5)
+- 10,11: well-known analyzer (2)
+- 12~15: random analyer (4)
+- 20~39: random collector (20)
