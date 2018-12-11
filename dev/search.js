@@ -1,4 +1,7 @@
 var Blockchain = require('./blockchain');
+const sha256 = require('sha256');
+
+
 
 /*******************************************************************************
   function : searchInBlock
@@ -253,29 +256,33 @@ Blockchain.prototype.makeReward = function(start, end){
   */ 
 
   var allPermlink = {};
-  allPermlink = findAllPermlink(start);
+  allPermlink = this.findAllPermlink(start);
 
 
   // 이 구간 안에 수집된 새로운 Weight
   var newWeightDict = {}; 
-  newWeightDict = getWeight(start, end, allPermlink);
+  newWeightDict = this.getWeight(start, end, allPermlink);
+  console.log("newWeightDict => ",newWeightDict);
   // newWeightDict = { Permlink : weight, ...  } ;
+
 
 
 
 
   // 이 구간안의 모든 Weight 를 구함
   // findTotalWeight()
-  var totalweight = findTotalWeight(newWeightDict);
+  var totalweight = this.findTotalWeight(newWeightDict);
   console.log("totalweight => ",totalweight);
+  console.log("this.totalWeight => ",this.totalWeight);
+
 
 
   // weightDict의 길이만큼 반복하면서 Permlink마다 줄 Value를 구함...
   // Value의 전체 합은 고정값 (100)
   var rewardLimit = 100;
   var permRewardDict = {};
-  permRewardDict = makePermlinkReward(newWeightDict, totalWeight, rewardLimit);
-
+  permRewardDict = this.makePermlinkReward(newWeightDict, totalweight, rewardLimit);
+  console.log("11 permRewardDict =>", permRewardDict);
   /*
     {
       Permlink1 : value,
@@ -286,11 +293,14 @@ Blockchain.prototype.makeReward = function(start, end){
 
   
   // Transaction 생성
-  RewardTransaction = makeRewardTransaction(permRewardDict, allPermlink);
+  RewardTransaction = this.RewardTransaction(permRewardDict, allPermlink);
   console.log("RewardTransaction =>", RewardTransaction);
 
   return true; 
 }
+
+
+
 
 
 Blockchain.prototype.findAllPermlink = function(start) {
@@ -378,14 +388,15 @@ Blockchain.prototype.getWeight = function(start, end, AllPermLink){
   
   // Weight를 담을 Dictionary를 선언
   WeightDict = {}
-
+  console.log("AllPermLink =>", AllPermLink);
   for(var i = start; i<end; i++){
 
     // 현재 블록을 nowBlock으로 저장
     nowBlock = this.chain[i];
 
     var voteCnt = nowBlock.voteList.length;
-    console.log("postCnt => ", postCnt , "replyCnt => ", replyCnt, "voteCnt =>", voteCnt);
+    console.log("nowBlock.voteList => ",nowBlock.voteList)
+    console.log("voteCnt =>", voteCnt);
 
     // 현재 블록에 Vote가 없을 경우 다음 블록으로 이동
     if(voteCnt == 0)
@@ -404,30 +415,33 @@ Blockchain.prototype.getWeight = function(start, end, AllPermLink){
           continue;
         
         if(tRefpermlink in WeightDict){
-          WeightDict["tRefpermlink"] = WeightDict["tRefpermlink"] + tWeight;
+          WeightDict[tRefpermlink] = WeightDict[tRefpermlink] + tWeight;
         }
 
         // 없을 경우 tWeight로 등록 및 초기화
         else{
-          WeightDict["tRefpermlink"] = tWeight;
+          WeightDict[tRefpermlink] = tWeight;
         }
       }//end for(j)
 
     }// end else
-
-
   }// end for(i)
   
   // WeightDict을 리턴
+  console.log("WeightDict => ", WeightDict);
   return WeightDict;
 }// End function
 
 
 Blockchain.prototype.findTotalWeight =  function(WeightDict){
 
-  const sumValues = WeightDict => Object.values(WeightDict).reduce((a, b) => a + b);
-  console.log("sumValues => ", sumValues);
 
+  sumValues = 0;
+  for (var key in WeightDict) {
+    sumValues = WeightDict[key] + sumValues;
+
+  }
+  console.log("sumValues =>", sumValues);
   return sumValues;
 }
 
@@ -437,6 +451,8 @@ Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewa
 
   PermlinkRewardDict = {};
   
+
+  /*
   const object = WeightDict;
 
   for(const [key, value] of Object.entries(object)) {
@@ -444,8 +460,20 @@ Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewa
     console.log(key, value);
     PermlinkRewardDict[key] = (value / TotalWeight) * rewardLimit;
   }
-  
-  return PermlinkDict;
+  */
+
+  for (var key in WeightDict) {
+    console.log("key => ",key)
+    // check if the property/key is defined in the object itself, not in parent
+    if (WeightDict.hasOwnProperty(key)) {           
+      PermlinkRewardDict[key] = (WeightDict[key] / TotalWeight) * rewardLimit;
+      console.log("PermlinkRewardDict[key] => ", PermlinkRewardDict[key]);
+      console.log("WeightDict[key] => ",WeightDict[key] ," TotalWeight =>", TotalWeight,"rewardLimit", rewardLimit);
+    }
+  } 
+
+
+  return PermlinkRewardDict;
 }
 
 
@@ -453,36 +481,49 @@ Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewa
 
 Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
-
-  for(const [key, value] of Object.entries(PermRewardDict)){
+  console.log("PermRewardDict =>", PermRewardDict);
+  //for(const [key, value] of Object.entries(PermRewardDict)){
+  for (var key in PermRewardDict) {  
     
-    console.log(key, value);
-    
+    value = PermRewardDict[key];
+    console.log("PermRewardDict[key] => ",value)
     var newtransaction  = {};
     newtransaction["version"] = 0.1;
     newtransaction["inputCnt"] = 1;
 
     // input에는 그냥 Permlink만 들어감
     vin = [];
-    vin[0] = key;    
-
+    vin[0] = new Object;
+    vin[0]["txid"] = key;    
+    newtransaction["vin"] = vin;
     newOutputCnt = 0;
     vout = [];
-    totalWeight = findTotalWeight(AllPermlink[key]);
-
+    
+    totalWeight = this.findTotalWeight(AllPermlink[key]);
+    console.log("RewardTransaction @ totalWeight => ", totalWeight);
+    console.log("RewardTransaction @ AllPermlink[key] => ", AllPermlink[key]);
 
     // 보상을 줘야 하는데, Vote는 없고 Post만 있는 경우
     if(totalWeight==0){
-      for(const[aKey, aValue] of Object.entries(AllPermlink[key])){
+      console.log("if value =>", value);
 
-        // 현재 Vote가 하나도 없는 경우 Post 만 모든 보상을 가져갈 수 있다?
+
+      //for(const[aKey, aValue] of Object.entries(AllPermlink[key])){
+      for (var aKey in AllPermlink[key]) {  
+        console.log("aKey =>", aKey);
+        
+        aValue = AllPermlink[key][aKey];
+        console.log("aValue =>", aValue);
+
+        // 현재 Vote가 하나도 없는 경우 Post의 Writer만 모든 보상을 가져갈 수 있다?
         if(totalWeight==0){
           vout[0] = new Object;
           vout[0]["value"] = value;
           vout[0]["index"] = 0;
-          vout[0]["publicKey"] = AllPermlink[key][aKey];
-          break;
+          vout[0]["publicKey"] = aKey;
         }
+        console.log("vout => ", vout);
+        break;
       }
     } // end if
 
@@ -491,7 +532,12 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
     else{
       // 각 Weight 별로 Pubket에 맞는 Output 생성함
-      for(const[aKey, aValue] of Object.entries(AllPermlink[key])){
+      //for(const[aKey, aValue] of Object.entries(AllPermlink[key])){
+
+      for (var aKey in AllPermlink[key]) { 
+
+        AllPermlink[key][aKey] = aValue
+        console.log("else aValue =>", aValue);
 
         // 0번째는 Writer의 보상이므로 전체 value에서 1/2 한 값 만큼 가져감
         if(newOutputCnt==0){
@@ -515,14 +561,13 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
     }// end else
 
     newtransaction["outputCnt"] = newOutputCnt;
-
-    newtransaction["txid"] =  "04" + sha256(JSON.stringify(transaction)+Date.now()),
+    newtransaction["vout"] = vout;
+    newtransaction["txid"] =  "04" + sha256(JSON.stringify(newtransaction)+Date.now()),
     console.log("newTransaction => ", newtransaction);
     this.pendingTransactions.push(newtransaction);
   }
-    
+  
 
-   
   return true;
 }
 
