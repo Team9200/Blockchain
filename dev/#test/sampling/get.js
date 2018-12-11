@@ -1,14 +1,10 @@
-const Blockchain = require('../../mine/mine');
+const getTimeStamp = require('../../util/getTimeStamp');
 
 const fs = require('fs');
-const { readList } = require('./readWriteChain');
+const { readList } = require('../../util/readWriteChain.js');
 const sha256 = require('sha256');
 const bs58check = require('bs58check');
 const { signPost, signVote } = require('../../pki/sign.js');
-
-var getRandomInt = function(max) {
-    return Math.floor(Math.random() * max);
-}
 
 var getUserPublic = function(usernumber) {
   let filename = './pubkeylist.json';
@@ -24,18 +20,14 @@ var getUserPrivate = function(n) {
   return privlist[n];
 }
 
-var getRandomMiner = function() {
-  let n = getRandomInt(10);
-  return getUserPublic(n);
-}
-
 var getUnitTransaction = function(value) {
   let transaction = {
     'txid':null,
     'version':1.00,
+    'type':0,
     'inputCnt':0,
     'vin':null,
-    'outputCnt':0,
+    'outputCnt':1,
     'vout':[{}]
   };
   transaction['vout'][0]['value'] = value;
@@ -49,9 +41,9 @@ var getPostBody = function(usernumber) {
   let filename = './malwareslist.json';
   let malwareslist = readList(filename);
 
-  let body = malwareslist[getRandomInt(1000)];
+  let body = malwareslist[getRandomInt(0,1000)];
   body['analyzer'] = getUserPublic(usernumber);
-  body['collector'] = getRandomUser();
+  body['collector'] = getRandomCollector();
   body['description'] = 'this is test description! in real, it must be more specific.';
   return body;
 }
@@ -63,7 +55,7 @@ var getUserPost = function(usernumber) {
   let publickey = getUserPublic(usernumber);
   let post = {
     'title':title,
-    'timestamp':Date.now(),
+    'timestamp':getTimeStamp(),
     'body':body,
     'hashtag':hashtag,
     'publickey':publickey,
@@ -79,7 +71,7 @@ var getUserPost = function(usernumber) {
 var getUserReply = function(usernumber, refpermlink) {
   let reply = {};
   reply['refpermlink'] = refpermlink;
-  reply['timestamp'] = Date.now();
+  reply['timestamp'] = getTimeStamp();
   reply['publickey'] = getUserPublic(usernumber);
   reply['text'] = 'this is test reply comment';
   reply['permlink'] = '02' + sha256(JSON.stringify(reply));
@@ -93,7 +85,7 @@ var getUserReply = function(usernumber, refpermlink) {
 var getUserVote = function(usernumber, refpermlink) {
   let vote = {};
   vote['refpermlink'] = refpermlink;
-  vote['timestamp'] = Date.now();
+  vote['timestamp'] = getTimeStamp();
   vote['publickey'] = getUserPublic(usernumber);
   vote['weight'] = 5;
   vote['voteid'] = '03' + sha256(JSON.stringify(vote));
@@ -107,26 +99,49 @@ var getUserVote = function(usernumber, refpermlink) {
 
 /* random modules */
 
-var getRandomUser = function() {
-  let rand = getRandomInt(100);
-  return getUserPublic(rand);
-}
-
 var getRandomPost = function() {
-  let rand = getRandomInt(1000);
+  let rand = getRandomInt(0,1000);
   return getUserPost(rand);
 }
 
+/* getRandomUser module */
+
+var getRandomUser = function() {
+  let rand = getRandomInt(0,40);
+  return getUserPublic(rand);
+}
+
+var getRandomStorage = function() {
+  let n = getRandomInt(0,5);
+  return getUserPublic(n);
+}
+
+var getRandomAnalyzer = function() {
+  let n = getRandomInt(10,15);
+  return getUserPublic(n);
+}
+
+var getRandomCollector = function() {
+  let n = getRandomInt(20,40);
+  return getUserPublic(n);
+}
+
+var getRandomInt = function(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
 module.exports = {
-  getRandomInt: getRandomInt,
   getUserPublic: getUserPublic,
   getUserPrivate: getUserPrivate,
-  getRandomMiner: getRandomMiner,
   getUnitTransaction: getUnitTransaction,
   getPostBody: getPostBody,
   getUserPost: getUserPost,
   getUserReply: getUserReply,
   getUserVote: getUserVote,
+  getRandomInt: getRandomInt,
   getRandomUser: getRandomUser,
+  getRandomStorage: getRandomStorage,
+  getRandomAnalyzer: getRandomAnalyzer,
+  getRandomCollector: getRandomCollector,
   getRandomPost: getRandomPost
 }

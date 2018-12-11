@@ -1,7 +1,7 @@
 const sha256 = require('sha256');
 const secp256k1 = require('secp256k1')
 const bs58check = require('bs58check');
-const {getRandomMiner} = require('../#test/sampling/get.js');
+const {getRandomStorage} = require('../#test/sampling/get.js');
 
 var Blockchain = require('../blockchain');
 
@@ -62,13 +62,14 @@ Blockchain.prototype.miningBlock = function () {
   const blockHash = this.hashBlock(previousBlockHash,currentBlockData,nonce);
 
   //채굴에 대한 보상
-  let miner = getRandomMiner();
+  let miner = getRandomStorage();
   var reward = {
     "txid":null,
     "version": 1.00,
+    "type":0,
     "inputCnt": 0,
     "vin": null,
-    "outputCnt": 0,
+    "outputCnt": 1,
     "vout": [
       {
       "index" : 0,

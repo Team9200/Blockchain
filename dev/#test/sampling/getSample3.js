@@ -1,5 +1,5 @@
 const Blockchain = require('../../mine/mine.js');
-const {readChain, writeChain} = require('./readWriteChain');
+const {readChain, writeChain} = require('../../util/readWriteChain.js');
 const { getRandomPost } = require('./get');
 
 const { getGoodPostList } = require('./wellmade.js');
@@ -16,7 +16,5 @@ Blockchain.prototype.miningGoodPost = function (goodlist) {
 };
 
 let samplechain = readChain('./genesisChain.json');
-let goodlist = getGoodPostList();
-
-samplechain.miningGoodPost(goodlist);
-writeChain(samplechain, 'sample3.json');
+samplechain.miningGoodPost(getGoodPostList());
+//writeChain(samplechain, 'sample4.json');

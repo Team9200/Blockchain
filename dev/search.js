@@ -1,7 +1,5 @@
-var Blockchain = require('./blockchain');
+var Blockchain = require('./mine/mine.js');
 const sha256 = require('sha256');
-
-
 
 /*******************************************************************************
   function : searchInBlock
@@ -30,8 +28,6 @@ Blockchain.prototype.searchInBlock = function (key, value) {
     }
   }
 
-
-
   /*******************************************************************************
     function: searchInChain
     explanaion: 체인안에서 모든 블록을 순회하며 정보를 탐색하는 메소드
@@ -55,17 +51,11 @@ Blockchain.prototype.searchInBlock = function (key, value) {
       return result;
   };
 
-
-
-
-  
   include = function(arr, index) {
     for(var i=0; i<arr.length; i++) {
       if (arr[i]["index"] == index) return true;
     }
   }
-
-
 
 /*******************************************************************************
   function : originfindAllUTXOs
@@ -87,11 +77,11 @@ Blockchain.prototype.originfindAllUTXOs = function(){
 
     if (cnt == 0)
       continue;
-    
+
     else {
       // 현재 블록 내부의 트랜잭션 수(cnt) 만큼 반복문 실행
       for (var j = 0; j < cnt; j++){
-        
+
         t_tx = this.chain[i].transactionList[j];
         t_input_cnt = t_tx["inputCnt"];
         t_txid = t_tx["txid"];
@@ -101,11 +91,11 @@ Blockchain.prototype.originfindAllUTXOs = function(){
           reference_txid = t_tx["vin"][k]["txid"];
           // 현재 UTXOdict에 존재한다면 UTXOindex[]에 해당 index를 삭제한다.
           for(var key in UTXO_dict){
-           
+
             if (key== reference_txid && include(UTXO_dict[key],t_vin[k]["index"])){
-           
+
               UTXO_dict[key].splice((UTXO_dict[key].indexOf(t_vin[k]["index"])),1);
-              
+
               // UTXOindex[]의 길이가 1이면 dictionary에서 해당 tx를 삭제한다.
               if(UTXO_dict[key].length == 1){
                 delete UTXO_dict[key];
@@ -113,7 +103,7 @@ Blockchain.prototype.originfindAllUTXOs = function(){
             }
           }
         }
-        
+
         //outputCnt를 구하고 transaction과 UTXOindex[]를 UTXO_dict에 추가한다.
         t_output_cnt = t_tx["outputCnt"];
         t_vout = t_tx["vout"];
@@ -123,7 +113,7 @@ Blockchain.prototype.originfindAllUTXOs = function(){
         for(var k = 0; k < t_output_cnt; k++){
           temp_array.push(k);
         }
-        
+
         UTXO_dict[t_tx["txid"]] = temp_array;
       }
     }
@@ -151,11 +141,11 @@ Blockchain.prototype.findAllUTXOs = function(){
 
     if (cnt == 0)
       continue;
-    
+
     else {
       // 현재 블록 내부의 트랜잭션 수(cnt) 만큼 반복문 실행
       for (var j = 0; j < cnt; j++){
-        
+
         t_tx = this.chain[i].transactionList[j];
         t_input_cnt = t_tx["inputCnt"];
         t_txid = t_tx["txid"];
@@ -165,11 +155,11 @@ Blockchain.prototype.findAllUTXOs = function(){
           reference_txid = t_tx["vin"][k]["txid"];
           // 현재 UTXOdict에 존재한다면 UTXOindex[]에 해당 index를 삭제한다.
           for(var key in UTXO_dict){
-           
+
             if (key== reference_txid && include(UTXO_dict[key],t_vin[k]["index"])){
-           
+
               UTXO_dict[key].splice((UTXO_dict[key].indexOf(t_vin[k]["index"])),1);
-              
+
               // UTXOindex[]의 길이가 1이면 dictionary에서 해당 tx를 삭제한다.
               if(UTXO_dict[key].length == 0){
                 delete UTXO_dict[key];
@@ -177,7 +167,7 @@ Blockchain.prototype.findAllUTXOs = function(){
             }
           }
         }
-        
+
         //outputCnt를 구하고 transaction과 UTXOindex[]를 UTXO_dict에 추가한다.
         t_output_cnt = t_tx["outputCnt"];
         t_vout = t_tx["vout"];
@@ -186,7 +176,7 @@ Blockchain.prototype.findAllUTXOs = function(){
         for(var k = 0; k < t_output_cnt; k++){
           temp_array.push(t_vout[k]);
         }
-        
+
         UTXO_dict[t_tx["txid"]] = temp_array;
       }
     }
@@ -229,23 +219,23 @@ Blockchain.prototype.findMyUTXOs = function(address){
 
 /*******************************************************************************
   function : makeReward
-  explanaion : 
+  explanaion :
 
   input : 보상에 담을 블록의 시작 블록(start),  끝 블록(end)
-  output : 
+  output :
 ********************************************************************************/
 
 Blockchain.prototype.makeReward = function(start, end){
-  
-  
+
+
   // 블록 start ~ end 까지 모든 Post, Reply, Vote를 통해 Reward를 산출함.
 
 
 
-  /* 
+  /*
   기존에 있었던 모든 Permlink
   findAllPermlink(start) return Block[0] to Block[start-1], All Permlink and Weight
-    { 
+    {
       Permlink : {
                     Writer's PublicKey : 0 ,
                     Voter1's PublicKey : Weight,
@@ -253,14 +243,14 @@ Blockchain.prototype.makeReward = function(start, end){
                     ...
                   }
     }
-  */ 
+  */
 
   var allPermlink = {};
   allPermlink = this.findAllPermlink(start);
 
 
   // 이 구간 안에 수집된 새로운 Weight
-  var newWeightDict = {}; 
+  var newWeightDict = {};
   newWeightDict = this.getWeight(start, end, allPermlink);
   console.log("newWeightDict => ",newWeightDict);
   // newWeightDict = { Permlink : weight, ...  } ;
@@ -291,12 +281,12 @@ Blockchain.prototype.makeReward = function(start, end){
     }
   */
 
-  
+
   // Transaction 생성
   RewardTransaction = this.RewardTransaction(permRewardDict, allPermlink);
   console.log("RewardTransaction =>", RewardTransaction);
 
-  return true; 
+  return true;
 }
 
 
@@ -336,7 +326,7 @@ Blockchain.prototype.findAllPermlink = function(start) {
           tWriter = tPost["publickey"];
           tPermlink = tPost["permlink"];
           PermlinkDict[tPermlink] = {};
-          
+
           // 이 Post의 Writer의 Weight = 0 으로 처음 등록함
           PermlinkDict[tPermlink][tWriter] = 0;
         }
@@ -351,7 +341,7 @@ Blockchain.prototype.findAllPermlink = function(start) {
           tWriter = tReply["publickey"];
           tPermlink = tPost["permlink"];
           PermlinkDict[tPermlink] = {};
-          
+
           // 이 Reply의 Writer의 Weight = 0 으로 처음 등록함
           PermlinkDict[tPermlink][tWriter] = 0;
         }
@@ -366,7 +356,7 @@ Blockchain.prototype.findAllPermlink = function(start) {
           tVoter = tVote["publickey"];
           tRefpermlink = tVote["refpermlink"];
           tWeight = tVote["weight"];
-          
+
           // 이 Voter의 Weight = tWeight 으로 기존 Permlink에 등록함
           PermlinkDict[tRefpermlink][tVoter] = tWeight;
         }
@@ -385,7 +375,7 @@ Blockchain.prototype.findAllPermlink = function(start) {
 
 
 Blockchain.prototype.getWeight = function(start, end, AllPermLink){
-  
+
   // Weight를 담을 Dictionary를 선언
   WeightDict = {}
   console.log("AllPermLink =>", AllPermLink);
@@ -401,7 +391,7 @@ Blockchain.prototype.getWeight = function(start, end, AllPermLink){
     // 현재 블록에 Vote가 없을 경우 다음 블록으로 이동
     if(voteCnt == 0)
       continue;
-    
+
     // 현재 블록에 Vote가 있는 경우
     else{
 
@@ -409,11 +399,11 @@ Blockchain.prototype.getWeight = function(start, end, AllPermLink){
         tVote = nowBlock.voteList[j];
         tRefpermlink = tVote["refpermlink"];
         tWeight = tVote["weight"];
-        
+
         // 이미 tRefpermlink가 WeightDict에 존재한다면 값을 더해준다.
         if(!(tRefpermlink in AllPermLink))
           continue;
-        
+
         if(tRefpermlink in WeightDict){
           WeightDict[tRefpermlink] = WeightDict[tRefpermlink] + tWeight;
         }
@@ -426,7 +416,7 @@ Blockchain.prototype.getWeight = function(start, end, AllPermLink){
 
     }// end else
   }// end for(i)
-  
+
   // WeightDict을 리턴
   console.log("WeightDict => ", WeightDict);
   return WeightDict;
@@ -450,13 +440,13 @@ Blockchain.prototype.findTotalWeight =  function(WeightDict){
 Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewardLimit){
 
   PermlinkRewardDict = {};
-  
+
 
   /*
   const object = WeightDict;
 
   for(const [key, value] of Object.entries(object)) {
-    
+
     console.log(key, value);
     PermlinkRewardDict[key] = (value / TotalWeight) * rewardLimit;
   }
@@ -465,12 +455,12 @@ Blockchain.prototype.makePermlinkReward = function(WeightDict, TotalWeight, rewa
   for (var key in WeightDict) {
     console.log("key => ",key)
     // check if the property/key is defined in the object itself, not in parent
-    if (WeightDict.hasOwnProperty(key)) {           
+    if (WeightDict.hasOwnProperty(key)) {
       PermlinkRewardDict[key] = (WeightDict[key] / TotalWeight) * rewardLimit;
       console.log("PermlinkRewardDict[key] => ", PermlinkRewardDict[key]);
       console.log("WeightDict[key] => ",WeightDict[key] ," TotalWeight =>", TotalWeight,"rewardLimit", rewardLimit);
     }
-  } 
+  }
 
 
   return PermlinkRewardDict;
@@ -483,8 +473,8 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
   console.log("PermRewardDict =>", PermRewardDict);
   //for(const [key, value] of Object.entries(PermRewardDict)){
-  for (var key in PermRewardDict) {  
-    
+  for (var key in PermRewardDict) {
+
     value = PermRewardDict[key];
     console.log("PermRewardDict[key] => ",value)
     var newtransaction  = {};
@@ -494,11 +484,11 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
     // input에는 그냥 Permlink만 들어감
     vin = [];
     vin[0] = new Object;
-    vin[0]["txid"] = key;    
+    vin[0]["txid"] = key;
     newtransaction["vin"] = vin;
     newOutputCnt = 0;
     vout = [];
-    
+
     totalWeight = this.findTotalWeight(AllPermlink[key]);
     console.log("RewardTransaction @ totalWeight => ", totalWeight);
     console.log("RewardTransaction @ AllPermlink[key] => ", AllPermlink[key]);
@@ -509,9 +499,9 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
 
       //for(const[aKey, aValue] of Object.entries(AllPermlink[key])){
-      for (var aKey in AllPermlink[key]) {  
+      for (var aKey in AllPermlink[key]) {
         console.log("aKey =>", aKey);
-        
+
         aValue = AllPermlink[key][aKey];
         console.log("aValue =>", aValue);
 
@@ -534,7 +524,7 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
       // 각 Weight 별로 Pubket에 맞는 Output 생성함
       //for(const[aKey, aValue] of Object.entries(AllPermlink[key])){
 
-      for (var aKey in AllPermlink[key]) { 
+      for (var aKey in AllPermlink[key]) {
 
         AllPermlink[key][aKey] = aValue
         console.log("else aValue =>", aValue);
@@ -562,11 +552,11 @@ Blockchain.prototype.RewardTransaction = function(PermRewardDict, AllPermlink){
 
     newtransaction["outputCnt"] = newOutputCnt;
     newtransaction["vout"] = vout;
-    newtransaction["txid"] =  "04" + sha256(JSON.stringify(newtransaction)+Date.now()),
+    newtransaction["txid"] =  "04" + sha256(JSON.stringify(newtransaction)),
     console.log("newTransaction => ", newtransaction);
     this.pendingTransactions.push(newtransaction);
   }
-  
+
 
   return true;
 }
