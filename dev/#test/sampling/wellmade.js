@@ -2,8 +2,9 @@ const sha256 = require('sha256');
 const fs = require('fs');
 const bs58check = require('bs58check');
 
+const getTimeStamp = require('../../util/getTimeStamp.js');
 const { signPost, signVote } = require('../../pki/sign.js');
-const { readChain, writeChain, readList} = require('./readWriteChain');
+const { readChain, writeChain, readList} = require('../../util/readWriteChain.js');
 const { getRandomInt,
   getUserPublic, getUserPrivate } = require('./get');
 
@@ -27,7 +28,7 @@ const { getRandomInt,
    let publickey = getUserPublic(usernumber);
    let post = {
      'title':title,
-     'timestamp':Date.now(),
+     'timestamp':getTimeStamp(),
      'body':body,
      'hashtag':hashtag,
      'publickey':publickey,
@@ -78,6 +79,12 @@ const { getRandomInt,
    return goodlist;
  }
 
+ var getGoodPostLink = function() {
+   let list = getGoodPostList();
+   let link = list.map(x=> x['permlink']);
+   return link;
+ };
+
 /* HOW TO SET */
 
 /*
@@ -94,7 +101,6 @@ let post = getGoodPost(12, 787, filename);
 updateGoodPost(post);
 showGoodPost();
 */
-
 
 /*
 userlist:
@@ -114,5 +120,6 @@ malist:
 */
 
 module.exports ={
-  getGoodPostList: getGoodPostList
+  getGoodPostList: getGoodPostList,
+  getGoodPostLink: getGoodPostLink
 }

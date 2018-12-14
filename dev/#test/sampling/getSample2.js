@@ -1,5 +1,5 @@
 const Blockchain = require('../../mine/mine.js');
-const {readChain, writeChain} = require('./readWriteChain');
+const {readChain, writeChain} = require('../../util/readWriteChain.js');
 const { getUserPublic,
  getUserPrivate,
  getUnitTransaction,

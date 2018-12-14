@@ -1,6 +1,5 @@
 const secp256k1 = require('secp256k1');
 const bs58check = require('bs58check');
-const Blockchain =
 
 /*
   - 서명의 입력값은 128bit == 32bytes Buffer
@@ -14,7 +13,10 @@ const Blockchain =
   output :
 ********************************************************************************/
 
-var verifyPost = function(post, publickey) {};
+var verifyPost = function(post) {
+  let msg = post['permlink'];
+
+};
 
 /*******************************************************************************
   function : verifyVote

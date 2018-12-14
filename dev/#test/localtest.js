@@ -1,5 +1,8 @@
-const {readChain} = require('./sampling/readWriteChain');
+const {getGoodPostList} = require('./sampling/wellmade.js');
 
-let sample = readChain('./sample2.json');
-console.log(sample.chain[2]);
-console.log(sample.chain[3]);
+let x = {
+  "a":1,
+  "b":2
+}
+
+console.log(Object.keys(x));

@@ -2,20 +2,10 @@ const secp256k1 = require('secp256k1');
 const bs58check = require('bs58check');
 const ripemd160 = require('ripemd160');
 const sha256 = require('sha256');
-var search = require('../search');
 
-/*******************************************************************************
-  function: getWalletAddress
-  explanaion: 지갑 주소를 얻어내는 함수
-  input : publicKey
-  output: 지갑 주소 (비트코인에서의 주소와 같은 형식)
-*******************************************************************************/
+const {} = require('../search');
 
-function getWalletAddress(pubKey){
-  let pubkeyhash = ripemd160(sha256(pubKey));
-  let address = bs58check(pubkeyhash);
-  return address;
-}
+
 
 /*******************************************************************************
   function: P2PrequestTX

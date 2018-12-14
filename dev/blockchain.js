@@ -13,6 +13,7 @@ explanaion :
 
 const currentNodeUrl = process.argv[3]; // for test
 const sha256 = require('sha256');
+const getTimeStamp = require('./util/getTimeStamp.js');
 
 /*******************************************************************************
   function : Block 객체
@@ -61,7 +62,7 @@ function Blockchain() {
 Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash, hash) {
   const newBlock = new Block(
     this.chain.length + 1,
-    Date.now(),
+    getTimeStamp(),
     this.pendingPosts,
     this.pendingReplies,
     this.pendingVotes,
@@ -116,7 +117,7 @@ Blockchain.prototype.addNewPost = function (post) {
   }
   const newPost = {
     title: post['title'],
-    timestamp: Date.now(),
+    timestamp: post['timestamp'],
     body: newBody,
     hashtag: post['hashtag'],
     publickey: post['publickey'],
@@ -140,7 +141,7 @@ Blockchain.prototype.addNewReply = function (reply) {
   const newReply = {
     permlink: reply['permlink'],
     refpermlink: reply['refpermlink'],
-    timestamp: Date.now(),
+    timestamp: reply['timestamp'],
     publickey: reply['publickey'],
     sign: reply['sign'],
     text: reply['text']
@@ -161,7 +162,7 @@ Blockchain.prototype.addNewVote = function (vote) {
   const newVote = {
     voteid: vote['voteid'],
     refpermlink: vote['refpermlink'],
-    timestamp: Date.now(),
+    timestamp: vote['timestamp'],
     publickey: vote['publickey'],
     sign: vote['sign'],
     weight: vote['weight']
@@ -202,6 +203,7 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
     //txid: '04' + sha256(JSON.stringify(transaction)),
     version: transaction["version"],
 
+
     inputCnt: transaction["inputCnt"],
     vin: t_vin,
 
@@ -209,6 +211,13 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
     vout: t_vout
 
   }
+  // type 0 : normal
+  // type 1 : with hash
+  if (transaction['type']==1) {
+    newtransaction['type'] == 1;
+    newtransaction['hash'] == transaction['hash'];
+  }
+
   this.pendingTransactions.push(newtransaction);
   return this.getLastBlock()['index'] + 1;
 };

@@ -6,5 +6,4 @@ testchain.pendingTransactions.push('asdsadasdasdsadasdsad');
 testchain.miningBlock();
 console.log(testchain);
 
-
 // writeChain(testchain, 'result.json');
