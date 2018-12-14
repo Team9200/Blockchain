@@ -21,13 +21,13 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "nodemon --watch dev -e dev/program.js",
+    "start": "nodemon --watch dev -e dev/program2.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "node_1": "nodemon --watch dev -e js dev/program.js 3001 https://localhost:3001",
-    "node_2": "nodemon --watch dev -e js dev/#test/postman_test.js 3002 https://localhost:3002",
-    "node_3": "nodemon --watch dev -e js dev/#test/postman_test.js 3003 https://localhost:3003",
-    "node_4": "nodemon --watch dev -e js dev/#test/postman_test.js 3004 https://localhost:3004",
-    "node_5": "nodemon --watch dev -e js dev/#test/postman_test.js 3005 https://localhost:3005"
+    "node_1": "nodemon --watch dev -e js dev/program2.js 3001 https://localhost:3001",
+    "node_2": "nodemon --watch dev -e js dev/program2.js 3002 https://localhost:3002",
+    "node_3": "nodemon --watch dev -e js dev/program2.js 3003 https://localhost:3003",
+    "node_4": "nodemon --watch dev -e js dev/program2.js 3004 https://localhost:3004",
+    "node_5": "nodemon --watch dev -e js dev/program2.js 3005 https://localhost:3005"
   },
   "repository": {
     "type": "git",

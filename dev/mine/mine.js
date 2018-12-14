@@ -74,7 +74,7 @@ Blockchain.prototype.miningBlock = function (minerPublicKey) {
       {
       "index" : 0,
       "value" : 10,
-      "publicKey" : miner
+      "publickey" : miner // publicKey 로 되어있어서 출력 안뜨던 버그 있었음!
     }]
   };
   reward['txid'] = '04' + sha256(JSON.stringify(reward));

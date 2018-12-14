@@ -202,7 +202,7 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
     txid: transaction['txid'],
     //txid: '04' + sha256(JSON.stringify(transaction)),
     version: transaction["version"],
-
+    timestamp: transaction["timestamp"],
 
     inputCnt: transaction["inputCnt"],
     vin: t_vin,

@@ -138,7 +138,7 @@ Blockchain.prototype.findAllUTXOs = function(){
 
     //현재 블록의 트랜잭션 수를 cnt라는 변수에 저장
     var cnt = this.chain[i].transactionList.length;
-    console.log("cnt => ",cnt);
+    // console.log("cnt => ",cnt);
     if (cnt == 0)
       continue;
 
@@ -171,9 +171,9 @@ Blockchain.prototype.findAllUTXOs = function(){
 
         //outputCnt를 구하고 transaction과 UTXOindex[]를 UTXO_dict에 추가한다.
         t_output_cnt = t_tx["outputCnt"];
-        console.log("t_output_cnt", t_output_cnt);
+        // console.log("t_output_cnt", t_output_cnt);
         t_vout = t_tx["vout"];
-        console.log("t_vout =>", t_vout);
+        // console.log("t_vout =>", t_vout);
         temp_array = [];
 
         for(var k = 0; k < t_output_cnt; k++){
@@ -181,7 +181,7 @@ Blockchain.prototype.findAllUTXOs = function(){
         }
 
         UTXO_dict[t_tx["txid"]] = temp_array;
-        console.log("temp_array", temp_array);
+        // console.log("temp_array", temp_array);
       }
     }
   }
@@ -196,6 +196,7 @@ Blockchain.prototype.findAllUTXOs = function(){
 
   input : address (UTXO를 찾을 주소)
   output : myUtxos => Dictionary(value : {해당 vout})
+  -> 버그 수정, Mining이 자동으로 수행되면 중복값으로 처리되어 누계되지 않음.
 ********************************************************************************/
 
 Blockchain.prototype.findMyUTXOs = function(address){
@@ -209,12 +210,14 @@ Blockchain.prototype.findMyUTXOs = function(address){
   for(var key in AllUTXO){
 //    var parse = JSON.parse(AllUTXO[key][0]);
     for(var i = 0; i < AllUTXO[key].length; i++ ){
-      if(address == AllUTXO[key][i]["publicKey"]){
-        myUtxos[AllUTXO[key][i]["value"]] = AllUTXO[key][i];
+      console.log("AllUTXO[key] => ",AllUTXO[key]);
+      if(address == AllUTXO[key][i]["publickey"]){
+        myUtxos[key] = AllUTXO[key][i];
+        console.log("AllUTXO[key][i] =>", AllUTXO[key][i])
       }
     }
   }
-  //console.log(myUtxos);
+  console.log(myUtxos);
 
   return myUtxos;
 }

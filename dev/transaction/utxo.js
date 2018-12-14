@@ -1,6 +1,6 @@
 // utxopool = {'txid':[voutelt1, voutelt2]}
-function UTXO() {
-  this.utxopool = {};
+function UTXO(utxo) {
+  this.utxopool = utxo;
 }
 
 /*******************************************************************************
@@ -10,8 +10,14 @@ function UTXO() {
   output: boolean
 *******************************************************************************/
 
-UTXO.prototype.isValidTx = function (transaction) {
+UTXO.prototype.isValidTx = function (newTransaction) {
+  
+  // for Debug Postman
+  transaction = newTransaction["transaction"]
+  console.log("transaction: ", transaction)
+
   let vin = transaction['vin'];
+  console.log(vin);
   let vout = transaction['vout'];
 
   if (vin == 'undefined' || vout == 'undefined') return false;
@@ -43,6 +49,7 @@ function isValidVoutElt(voutelt) {
 //-----------------------------------------------------------
 
 UTXO.prototype.isValidVin = function (vin) {
+  console.log("typeof(vin) =>" , typeof(vin));
   if (vin.length == 0) return false;
   let isSomeNotValid = vin.every
     (vinelt => {return this.isValidVinElt(vinelt)});

@@ -1,6 +1,26 @@
 var Blockchain = require('./blockchain');
 
+/*******************************************************************************
+filename : synchronization.js
+Autor : linear
+date : 18. 12. 14
+version : v1.0
+explanaion :
+  - 블록체인 동기화 알고리즘 설계 및 메소드 구현
+********************************************************************************/
 
+
+/*******************************************************************************
+  function : getMyBlockinfo
+  explanaion : 나의 블록체인 메타 데이터를 리턴하는 함수
+  input : 없음
+  output :  
+        chainInfo = {
+            last_block_hash(나의 블록체인의 마지막 블록의 해시값)
+            length(나의 블록체인의 마지막 블록의 해시값)
+        } 
+                
+********************************************************************************/
 
 Blockchain.prototype.getMyBlockinfo = function () {
 
@@ -22,12 +42,10 @@ Blockchain.prototype.blockRequest = function () {
 
     var t_length = this.chain.length;
 
-
 };
 
+
 Blockchain.prototype.blockSend = function (blockIndex) {
-
-
 
 };
 

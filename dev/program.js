@@ -1,15 +1,19 @@
 const keygen = require("../dev/pki/keygen");
 const sign = require("../dev/pki/sign");
 const Blockchain = require("../dev/mine/mine");
+const wallet =  require("../dev/wallet/wallet");
 const search = require("../dev/search");
 var rp = require('request-promise');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 const blockchain = new Blockchain();
+
 var uuid = require('uuid/v1');
 const bs58check = require('bs58check');
 const utxo = require("../dev/transaction/utxo")
+const programUtxo = new utxo(blockchain.findAllUTXOs());
+
 var nodeAddress = uuid().split('-').join('');
 var port = process.argv[2];
 
@@ -40,8 +44,15 @@ app.get('/blockchain', function(req, res) {
   })
   
   app.post('/transaction', function(req, res) {
-    const blockIndex = blockchain.addNewTransaction(req.body);
-    res.send({note: `트랜잭션은 ${blockIndex} 블락안으로 들어갈 예정입니다.`})
+    
+    console.log("req.body =>" , req.body);
+    if(programUtxo.isValidTx(req.body)){
+      const blockIndex = blockchain.addNewTransaction(req.body);
+      res.send({note: `트랜잭션은 ${blockIndex} 블락안으로 들어갈 예정입니다.`});
+    }
+    else{
+      res.send({note: `트랜잭션 데이터 오류`});
+    }
   })
   
   app.get('/balance', function(req,res) {
@@ -77,14 +88,13 @@ app.get('/blockchain', function(req, res) {
 var PrivKey =  keygen.getPrivKey();
 var PublicKey = keygen.getPubKey(PrivKey);
 
-console.log(bs58check.encode(PublicKey))
-var utxo_pool = new utxo();
-utxo_pool = blockchain.findAllUTXOs();
+// console.log(bs58check.encode(PublicKey))
 
   app.listen(port, function() {
 
 
     var working = setInterval(function(){
+        console.log("programUtxo =>", programUtxo);
 
         //console.log("Current Blockchain => ", blockchain);
         //console.log("test")
@@ -99,12 +109,14 @@ utxo_pool = blockchain.findAllUTXOs();
 
           blockchain.makeReward(lastBlockIndex-9 , lastBlockIndex);
         }
-        console.log(typeof(PublicKey));
-        console.log("PublicKey => ", PublicKey);
+        // console.log(typeof(PublicKey));
+        // console.log("PublicKey => ", PublicKey);
         encodedPublicKey = bs58check.encode(PublicKey);
+        encodedPrivateKey = bs58check.encode(PrivKey);
+
         console.log("encodedPublicKey -> " ,encodedPublicKey);
         var NewBlock = blockchain.miningBlock(encodedPublicKey);
-        console.log("NewBlock => ", NewBlock["transactionList"]);
+        // console.log("NewBlock => ", NewBlock["transactionList"]);
         console.log("blockchain.findMyUTXOs(PublicKey) => ", blockchain.findMyUTXOs(encodedPublicKey));
 
         // 마이닝 완료
