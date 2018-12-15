@@ -10,11 +10,13 @@ function UTXO(utxo) {
   output: boolean
 *******************************************************************************/
 
-UTXO.prototype.isValidTx = function (newTransaction) {
+UTXO.prototype.isValidTx = function (transaction) {
   
   // for Debug Postman
-  transaction = newTransaction["transaction"]
-  console.log("transaction: ", transaction)
+  console.log("newTransaction => ", transaction);
+
+  // transaction = newTransaction["transaction"]
+  // console.log("transaction: ", transaction)
 
   let vin = transaction['vin'];
   console.log(vin);

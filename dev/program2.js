@@ -128,16 +128,21 @@ app.post('/post', function(req,res) {
 
 */
 
-var PrivKey =  keygen.getPrivKey();
-var PublicKey = keygen.getPubKey(PrivKey);
-var encodedPublicKey = bs58check.encode(PublicKey);
-console.log("typeof(encodedPublicKey)",typeof(encodedPublicKey) )
-var encodedPrivateKey = bs58check.encode(PrivKey);
-var recvPrivKey = keygen.getPrivKey();
-var recvPublicKey = keygen.getPubKey(recvPrivKey);
-console.log("encodedPublicKey", encodedPublicKey);
-console.log("encodedPrivateKey", encodedPrivateKey)
+// var PrivKey =  keygen.getPrivKey();
+// var PublicKey = keygen.getPubKey(PrivKey);
+// var encodedPublicKey = bs58check.encode(PublicKey);
+// console.log("typeof(encodedPublicKey)",typeof(encodedPublicKey) )
+// var encodedPrivateKey = bs58check.encode(PrivKey);
+// var recvPrivKey = keygen.getPrivKey();
+// var recvPublicKey = keygen.getPubKey(recvPrivKey);
+// console.log("encodedPublicKey", encodedPublicKey);
+// console.log("encodedPrivateKey", encodedPrivateKey)
     
+var encodedPrivateKey = "8VaKEbcvN7WjdTbKcWCcxc1AKiL282Ne3n6kmeeoe5ah7vNVA";
+var encodedPublicKey = "7yYpwAFSJij7RswzKyDfZxdVt3FZ34iomz4ocY6ViRYDzSohXj";
+
+var PrivKey =  bs58check.decode(encodedPrivateKey);
+var PublicKey = bs58check.decode(encodedPublicKey);
 
 
 var WebSocketServer = require('ws').Server;
@@ -148,10 +153,10 @@ var WebSocketServer = require('ws').Server;
     //console.log("Current Blockchain => ", blockchain);
     //console.log("test")
     //console.log("PrivKey => ", PrivKey);
-    programUtxo = blockchain.findAllUTXOs();
+    // programUtxo = blockchain.findAllUTXOs();
     var lastBlockIndex = blockchain.getLastBlock().index;
     
-
+    
     // Voting_Reward(if문)
     if(lastBlockIndex % 10 == 9){
       blockchain.makeReward(lastBlockIndex-9 , lastBlockIndex);
@@ -257,14 +262,13 @@ function transactionHandle(conn, transaction) {
   // transaction
 
   console.log("transaction =>" , transaction);
-
   if(programUtxo.isValidTx(transaction)){
     const blockIndex = blockchain.addNewTransaction(transaction);
-    res.send({note: `트랜잭션은 ${blockIndex} 블록 안으로 들어갈 예정입니다.`});
+    conn.send(JSON.stringify({note: `트랜잭션은 ${blockIndex} 블록 안으로 들어갈 예정입니다.`}));
   }
 
   else{
-    res.send({note: `트랜잭션 데이터 오류`});
+    conn.send(JSON.stringify({note: `트랜잭션 데이터 오류`}));
   }
 
 }
