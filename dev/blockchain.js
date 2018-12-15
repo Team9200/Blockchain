@@ -181,7 +181,7 @@ Blockchain.prototype.addNewVote = function (vote) {
 
 Blockchain.prototype.addNewTransaction = function (transaction) {
 
-  const t_vin = [transaction["inputCnt"]];
+  const t_vin = [];
   for(var i = 0; i < transaction["inputCnt"];i++){
     t_vin[i] = new Object;
     t_vin[i]["txid"] = transaction["vin"][i]["txid"];
@@ -189,7 +189,7 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
     t_vin[i]["sig"] = transaction["vin"][i]["sig"];
   }
 
-  const t_vout = [transaction["vout"]];
+  const t_vout = [];
   for(var i = 0; i < transaction["outputCnt"];i++){
     t_vout[i] = {};
     t_vout[i]["value"] = transaction["vout"][i]["value"];
@@ -214,8 +214,8 @@ Blockchain.prototype.addNewTransaction = function (transaction) {
   // type 0 : normal
   // type 1 : with hash
   if (transaction['type']==1) {
-    newtransaction['type'] == 1;
-    newtransaction['hash'] == transaction['hash'];
+    newtransaction['type'] = 1;
+    newtransaction['hash'] = transaction['hash'];
   }
 
   this.pendingTransactions.push(newtransaction);

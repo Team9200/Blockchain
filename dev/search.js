@@ -195,8 +195,8 @@ Blockchain.prototype.findAllUTXOs = function(){
   해당 Trnasaction에서 나의 주소를 가르키는 vout을 value로 갖는다.
 
   input : address (UTXO를 찾을 주소)
-  output : myUtxos => Dictionary(value : {해당 vout})
-  -> 버그 수정, Mining이 자동으로 수행되면 중복값으로 처리되어 누계되지 않음.
+  output : myUtxos => Dictionary(txid : {해당 vout})
+  -> 버그 수정, Mining이 자동으로 수행되면 중복값으로 처리되어 누계되지 않아서 ket를 txid
 ********************************************************************************/
 
 Blockchain.prototype.findMyUTXOs = function(address){
@@ -209,15 +209,16 @@ Blockchain.prototype.findMyUTXOs = function(address){
 
   for(var key in AllUTXO){
 //    var parse = JSON.parse(AllUTXO[key][0]);
+    
     for(var i = 0; i < AllUTXO[key].length; i++ ){
-      console.log("AllUTXO[key] => ",AllUTXO[key]);
+      console.log("AllUTXO[" + key +"] => ",AllUTXO[key]);
       if(address == AllUTXO[key][i]["publickey"]){
         myUtxos[key] = AllUTXO[key][i];
-        console.log("AllUTXO[key][i] =>", AllUTXO[key][i])
+        console.log("AllUTXO[" + key + "][" + i +"] =>", AllUTXO[key][i])
       }
     }
   }
-  console.log(myUtxos);
+  console.log("myUtxos =>>>>>", myUtxos);
 
   return myUtxos;
 }

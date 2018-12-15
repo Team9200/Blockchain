@@ -4,8 +4,14 @@ const ripemd160 = require('ripemd160');
 const sha256 = require('sha256');
 const blockchain = require('../mine/mine');
 const program = require("../program");
+const sign = require("../pki/sign");
+const search = require('../search');
+const program2 = require('../program2');
 
-const {} = require('../search');
+var Blockchain = new blockchain();
+var sr = new search();
+var newtransaction;
+
 
 
 /*******************************************************************************
@@ -33,7 +39,13 @@ function P2PrequestUTXO(address) {};
   output: float 형의 잔액
 *******************************************************************************/
 
-function getTotalAmount(utxolist) {};
+function getTotalAmount(utxolist) {
+  var sumValue = 0;
+  for (var key in utxolist){
+    sumValue = utxolist[key]["value"] + sumValue;
+  }
+  return sumValue;
+};
 
 /*******************************************************************************
   function: getSendList
@@ -62,84 +74,94 @@ function getReceviceList(txlist) {};
   output : 생성된 transaction의 Json 형태의 출력
 ********************************************************************************/
 
-function MakePayment(amount, receiver_publickey, sender_privatekey, sender_publickey, t_version){
+function MakePayment(amount, utxolist ,receiver_publickey, sender_privatekey, sender_publickey, t_version, type, hash){
   
-  var myVin = [];
-  var t_MyUtxos = {};
+
+
+  t_sumValue = getTotalAmount(utxolist);
+  console.log("t_sumValue =>", t_sumValue);
+
+  if(amount > t_sumValue)
+    return false;
   
-  t_MyUtxos = program.findMyUTXOs(sender_publickey);
-  console.log("sender_publickey =>", sender_publickey);
-  console.log("t_MyUtxos",t_MyUtxos);
-
-  var mySum = 0;
-  var i = 0;
-
-  // Key 개수 만큼 MyUTXO를 순회한다.
-  //  key = txid,  t_MyUtxos[key] = vout, t_MyUtxos[key]["value"] = value;
-  for(var key in t_MyUtxos){
+  // 변수 초기화
+  var vinSum = 0;
+  var newVin = [];
+  var newVout = [];
+  var newVinIndex = 0;
+  var newVoutIndex = 0;
+  // 나의 UTXO List의 길이만큼 반복
+  for(var key in utxolist){
+  
+    // 누적 값을 더해서 새로운 input 생성
+    vinSum = utxolist[key]["value"] + vinSum;
+    newVin[newVinIndex] = new Object;
+    newVin[newVinIndex]["txid"] = key;
+    newVin[newVinIndex]["index"] = newVinIndex;
+    newVin[newVinIndex]["sig"] = bs58check.encode(sign.signTransaction(newVin[newVinIndex],  sender_privatekey));
+    newVinIndex++;
     
-    // 현재 자산의 누적 합보다 보내야 할 금액이 더 크면 누적합에 UTXO를 계속 추가하며 누적 합을 키운다.
-    // 결과적으로 vin에 사용할 UTXO 만큼 추가하여 vin을 생성한다. 
-    if(amount > mySum){
-      mySum = parseInt(t_MyUtxos[key]["value"]) + parseInt(mySum);
-      myVin[i] = new Object;
+    // 누적 값이 보낼 양과 같으면 잔돈 없음, 하나의 vout만 생성
+    if(vinSum == amount){
+      newVoutIndex = 1;
+      newVout[0] = new Object;
+      newVout[0]["value"] = amount;
+      newVout[0]["index"] = 0;
+      newVout[0]["publickey"] = bs58check.encode(receiver_publickey);
+      break;
+    }
 
-      console.log("key => ",key);
-      myVin[i]["txid"] = JSON.parse(key);
-      
-      for(var j = 0; j < JSON.parse(t_MyUtxos[key])["outputCnt"]; j++){
-        if(JSON.parse(t_MyUtxos[key])["vout"][j]["publicKey"] == sender_publickey){
-          myVin[i]["index"] = JSON.parse(t_MyUtxos[key])["vout"][j]["index"];
-        }
-      }
-      // 서명 미구현
-      myVin[i]["sig"] = "sig(private_key, JSON.parse(t_MyUtxos[key][0])[\"txid\"])";  
-      i++;
+    // 누적값이 보낼 양보다 크면 잔돈 있음, 2개의 vout 생성
+    if(vinSum > amount){
+      newVoutIndex = 2;
+      newVout[0] = new Object;
+      newVout[0]["value"] = amount;
+      newVout[0]["index"] = 0;
+      newVout[0]["publickey"] = bs58check.encode(receiver_publickey);
+
+      newVout[1] = new Object;
+      newVout[1]["value"] = vinSum - amount;
+      newVout[1]["index"] = 1;
+      newVout[1]["publickey"] = bs58check.encode(sender_publickey);
+      break;
+    }
+
+  }// end for
+
+    // 새로운 트랜잭션 생성
+    newtransaction = {
+      version : t_version,
+      timestamp : Date.now(),
+      inputCnt : newVinIndex,
+      vin : newVin,
+      outputCnt: newVoutIndex,
+      vout : newVout
     }
     
-  }
 
+    // tx_id 생성
+    newtransaction["txid"] = '04' + sha256(JSON.stringify(newtransaction));
 
-  // UTXO를 다 돌고 돈이 부족하면 false 리턴
-  if(amount > mySum){
-    return false;
-  }
-
-  // 일단 최대 받는사람 1명 + 나에게 잔돈 전송까지 구현
-  var myVout = []; 
-  myVout[0] = new Object;
-  myVout[0]["value"] = amount;
-  myVout[0]["index"] = 0;
-  myVout[0]["publicKey"] = receiver_publickey;
-  
-  var t_outputCnt = 1;
-
-  if(amount<mySum){
-    myVout[1] = new Object;
-    myVout[1]["value"] = mySum - amount;
-    myVout[1]["index"] = 1;
-    myVout[1]["publicKey"] = sender_publickey;
-    t_outputCnt = 2;
-  }
-
-  // 새 트랜잭션 정의
-  const newTransaction= {
-    version : t_version,
-    inputCnt : i,
-    vin : myVin,
-    outputCnt : t_outputCnt,
-    vout : myVout
-  };
-  
+  console.log ("newtransaction => ",newtransaction)
 
   // 새 트랜잭션에 추가
-  this.addNewTransaction(newTransaction);
+  // Blockchain.addNewTransaction(newtransaction);
+  //program2.blockchain.addNewTransaction(newtransaction);
 
-  return newTransaction;
+  if (type==1) {
+    newtransaction['type'] = 1;
+    newtransaction['hash'] = hash;
+  }
+  else{
+      newtransaction['type'] = 0;
+      newtransaction['hash'] = 0;
+  }
 
+  return newtransaction;
+    
 }
 
 module.exports = {
-  getWalletAddress: getWalletAddress,
-  MakePayment : MakePayment
+  MakePayment : MakePayment,
+  getTotalAmount : getTotalAmount
 };

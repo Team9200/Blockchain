@@ -65,6 +65,7 @@ Blockchain.prototype.miningBlock = function (minerPublicKey) {
   let miner = minerPublicKey;
   var reward = {
     "txid":null,
+    "timestamp":Date.now(),
     "version": 1.00,
     "type":0,
     "inputCnt": 0,
