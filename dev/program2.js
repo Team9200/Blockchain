@@ -220,7 +220,7 @@ var WebSocketServer = require('ws').Server;
           synchronization(conn, data.pid);
           break;
         case "getblock" :
-          getblock(conn, data.pid);
+          getblock(conn);
           break;
         
 
@@ -238,23 +238,26 @@ function balanceHandle(conn, pid){
 
 function postHandle(conn, post) {
   // post
-  const blockIndex = blockchain.addNewPost(post);
+  let blockIndex = blockchain.addNewPost(post);
   conn.send(JSON.stringify({note: `post 정보는 ${blockIndex} 블락안으로 들어갈 예정입니다.`}));
 }
 
 function voteHandle(conn, vote) {
   // vote
-  const blockIndex = blockchain.addNewVote(vote);
+  let blockIndex = blockchain.addNewVote(vote);
   conn.send(JSON.stringify({note: `vote 정보는 ${blockIndex} 블락안으로 들어갈 예정입니다.`}));
 }
 
 function replyHandle(conn, reply) {
     //reply
-    const blockIndex = blockchain.addNewReply(reply);   
+    let blockIndex = blockchain.addNewReply(reply);   
     conn.send(JSON.stringify({note: `reply 정보는 ${blockIndex} 블록 안으로 들어갈 예정입니다.`}));
 }
 
-
+function getblock(conn){
+  let blockIndex = blockchain;   
+    conn.send(JSON.stringify(blockIndex));
+}
 
 
 
