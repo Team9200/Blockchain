@@ -1,7 +1,13 @@
 // utxopool = {'txid':[voutelt1, voutelt2]}
+
+const bs58check = require('bs58check');
+
 function UTXO(utxo) {
   this.utxopool = utxo;
 }
+
+
+
 
 /*******************************************************************************
   function: isValidTx
@@ -9,6 +15,10 @@ function UTXO(utxo) {
   input : trnasaction
   output: boolean
 *******************************************************************************/
+UTXO.prototype.setUtxoPool = function(newUtxopool){
+  this.utxopool = newUtxopool;
+}
+
 
 UTXO.prototype.isValidTx = function (transaction) {
   
@@ -22,10 +32,22 @@ UTXO.prototype.isValidTx = function (transaction) {
   console.log(vin);
   let vout = transaction['vout'];
 
-  if (vin == 'undefined' || vout == 'undefined') return false;
-  if (this.isValidVin(vin) == false) return false;
-  if (this.compareVinVout(transaction)<0) return false;
-  if (this.isVerifiedVin(vin) == false) return false;
+  if (vin == 'undefined' || vout == 'undefined') {
+    console.log("error 11111");
+    return false
+  }
+  if (this.isValidVin(vin) == false){
+    console.log("error 22222");
+    return false
+  }
+  if (this.compareVinVout(transaction)<0){
+    console.log("error 333333");
+    return false
+  }
+  if (this.isVerifiedVin(vin) == false){
+    console.log("error 4444444");
+    return false
+  }
   else return true;
 };
 
@@ -62,16 +84,31 @@ UTXO.prototype.isValidVin = function (vin) {
 UTXO.prototype.isValidVinElt = function (vinelt) {
   if (vinelt['txid']  == 'undefined' ||
       vinelt['index'] == 'undefined' ||
-      vinelt['sig']   == 'undefned') return false;
-  if (vinelt['txid'].substring(0,2) != '04') return false;
-  if (vinelt['sig'].length != 64) return false;
+      vinelt['sig']   == 'undefned'){
+        console.log("isValidVinElterror 11111");
+        return false
+      }
+  if (vinelt['txid'].substring(0,2) != '04'){
+    console.log("isValidVinElterror22222");
+    return false
+  }
+  if (bs58check.decode(vinelt['sig']).length != 64){
+    console.log("isValidVinElterror33333");
+    return false
+  }
 
-  if (this.isUTXO(vinelt['txid'], vinelt['index']) == false) return false;
+  if (this.isUTXO(vinelt['txid'], vinelt['index']) == false){
+    console.log("isValidVinElterror44444");
+    return false
+  }
   else return true;
 };
 
 UTXO.prototype.isUTXO = function (txid, outindex) {
-  if(this.utxopool[txid] == 'undefined') return false;
+  console.log("this.utxopool ->", this.utxopool) ;
+  console.log("txid -> ",txid);
+  console.log("this.utxopool[txid] -> ",this.utxopool[txid]);
+  if(this.utxopool == 'undefined') return false;
   if(this.utxopool[txid].map(x=>x.index).indexOf(outindex) == -1) return false;
   return true;
 };

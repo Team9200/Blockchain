@@ -155,7 +155,7 @@ var WebSocketServer = require('ws').Server;
     //console.log("PrivKey => ", PrivKey);
     // programUtxo = blockchain.findAllUTXOs();
     var lastBlockIndex = blockchain.getLastBlock().index;
-    
+  
     
     // Voting_Reward(if문)
     if(lastBlockIndex % 10 == 9){
@@ -163,8 +163,9 @@ var WebSocketServer = require('ws').Server;
     }
     // console.log(typeof(PublicKey));
     // console.log("PublicKey => ", PublicKey);
-    var utxolist = blockchain.findMyUTXOs(encodedPublicKey);  
+    var utxolist = blockchain.findMyUTXOs(encodedPublicKey);
     console.log("utxolist =>", utxolist)
+    programUtxo.setUtxoPool(utxolist);
 
     //var newtransaction = wallet.MakePayment(3, utxolist, recvPublicKey, PrivKey, PublicKey, 1, 1, 0);
     //console.log("newtransaction => ",newtransaction);
@@ -261,7 +262,17 @@ function transactionHandle(conn, transaction) {
 
   // transaction
 
-  console.log("transaction =>" , transaction);
+  // console.log("transaction =>" , transaction);
+  // console.log("transaction.vin => ",transaction["vin"]);
+  // console.log("typeof transaction.vin => ",typeof(transaction["vin"]));
+  // for(let i = 0; i < transaction["vin"].length; i++){
+  //   transaction["vin"][i]["sig"] = bs58check.decode(transaction["vin"][i]["sig"]);
+  //   console.log("transaction.vin[i].sig =>", transaction["vin"][i]["sig"] );
+
+  // }
+  
+  // console.log("")
+  
   if(programUtxo.isValidTx(transaction)){
     const blockIndex = blockchain.addNewTransaction(transaction);
     conn.send(JSON.stringify({note: `트랜잭션은 ${blockIndex} 블록 안으로 들어갈 예정입니다.`}));

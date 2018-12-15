@@ -98,7 +98,7 @@ function MakePayment(amount, utxolist ,receiver_publickey, sender_privatekey, se
     newVin[newVinIndex] = new Object;
     newVin[newVinIndex]["txid"] = key;
     newVin[newVinIndex]["index"] = newVinIndex;
-    newVin[newVinIndex]["sig"] = bs58check.encode(sign.signTransaction(newVin[newVinIndex],  sender_privatekey));
+    newVin[newVinIndex]["sig"] = sign.signTransaction(newVin[newVinIndex],  sender_privatekey);
     newVinIndex++;
     
     // 누적 값이 보낼 양과 같으면 잔돈 없음, 하나의 vout만 생성
